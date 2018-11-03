@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<head>
+<title>疎通確認</title>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+	<h1 class="alert alert-info">疎通確認</h1>
+	<div id="registUserName">
+		<div class="form-group">
+			<label>接続者名<input type="text" class="form-control" /></label>
+		</div>
+		<button class="btn btn-info">接続</button>
+	</div>
+	<div id="view">
+		<h4 class="alert alert-info">接続状況</h4>
+		<table id="setsuzoku" class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>接続者</th>
+					<th>最終接続</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+		<h4 class="alert alert-info">切断記録</h4>
+		<table id="kiroku" class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>接続者</th>
+					<th>切断</th>
+					<th>再接続</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+		<button id="deleteAll" class="btn btn-danger">全件削除</button>
+	</div>
+</div>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.bundle.min.js" integrity="sha384-CS0nxkpPy+xUkNGhObAISrkg/xjb3USVCwy+0/NMzd5VxgY4CMCyTkItmy5n0voC" crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="./js/client.js"></script>
+</body>
+</html>
