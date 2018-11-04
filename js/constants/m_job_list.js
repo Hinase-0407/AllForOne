@@ -197,7 +197,7 @@ var M_JOB_LIST = [
 		jobId: "JB040",
 		shokugyoMei: "踊り子",
 		memoJob: "魅力が求められる職業。金品を謙譲させて生計を立てる。",
-		memoSkill: "付近にいるプレイヤーを誘惑して所有財産を頂戴する。"
+		memoSkill: "付近にいるプレイヤーを誘惑して所有財産を頂戴する。",
 		money: 2,
 		strength: 0,
 		intellect: 0,
@@ -205,6 +205,4 @@ var M_JOB_LIST = [
 		charm: 3
 	}
 ];
-
-
-
+module.exports = M_JOB_LIST;
