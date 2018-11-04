@@ -1,4 +1,4 @@
-var M_BUILD_LIST = [
+var M_BUILDING_LIST = [
 	{
 		buildId: "BL000",
 		buildMei: "新地",
@@ -171,5 +171,4 @@ var M_BUILD_LIST = [
 		memo: "ゴミを焼却する施設。臭いがするので周辺の土地の人口が減る。"
 	}
 ];
-module.exports = M_BUILD_LIST;
-
+module.exports = M_BUILDING_LIST;
