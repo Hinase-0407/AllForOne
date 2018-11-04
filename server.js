@@ -3,6 +3,8 @@
 // ----------------------------------------------------------------------
 var Util = require('./js/util.js');
 var M_JOB_LIST = require('./js/constants/m_job_list.js');
+var M_ITEM_LIST = require('./js/constants/m_item_list.js');
+var M_BUILDING_LIST = require('./js/constants/m_building_list.js');
 //console.log(M_JOB_LIST);
 var WebSocketServer = require('ws').Server
 	, http = require('http')
@@ -27,7 +29,7 @@ function removeConnection(connection) {
 	for (var i = CON_LIST.length - 1; i >= 0; i--) {
 		var tmp = CON_LIST[i];
 		if (tmp === connection) {
-			CON_LIST = CON_LIST.splice(i, 1);
+			CON_LIST.splice(i, 1);
 		}
 	}
 }
@@ -43,6 +45,7 @@ function send(connection, eventName, sendData) {
 		//console.log(json);
 		connection.send(json);
 	} catch (e) {
+		console.log("send error");
 		removeConnection(connection);
 	}
 }
@@ -50,9 +53,14 @@ function send(connection, eventName, sendData) {
 // サーバー定期処理.
 //----------------------------------------------------------------------
 setInterval(function() {
+	console.log(CON_LIST.length);
 	for (var i = 0; i < CON_LIST.length; i++) {
 		var con = CON_LIST[i];
-		var data = {mapList: M_JOB_LIST};
+		var data = {
+			mapList: M_JOB_LIST,
+			itemList: M_ITEM_LIST,
+			buildingList: M_BUILDING_LIST
+		};
 		send(con, "showGameInfo", data);
 	}
 }, 1000);

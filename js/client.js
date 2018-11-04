@@ -43,6 +43,10 @@ $(function() {
 			if (eventName === "showGameInfo") {
 				// マップ一覧表示
 				self.showObjList(data.mapList, "mapList");
+				// アイテム一覧表示
+				self.showObjList(data.itemList, "itemList");
+				// 建物一覧表示
+				self.showObjList(data.buildingList, "buildingList");
 			}
 		};
 	};
