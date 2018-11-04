@@ -3,92 +3,69 @@ $(function() {
 	// クライアントの処理を扱うクラス.
 	// ----------------------------------------------------------------------
 	function Client() {
-		var self = this;
-
-		self.socket = io.connect();
-		self.registUserName();
-		self.connect();
-
-		self.socket.on('viewUpdate', function(datas) {
-			self.viewUpdate(datas);
-		});
-
-		$('#deleteAll').click(function() {
-			if (self.userName === "中山 友貴") {
-				self.send("deleteAll");
-			}
-		});
+		// 通信用オブジェクト
+		//var host = "153.126.204.61";
+		var host = "localhost";
+		this.ws = new WebSocket('ws://' + host + ':8005/');
+		// イベント設定
+		this.setEvent();
 	}
+	
 	// ----------------------------------------------------------------------
-	// 名前登録.
+	// イベント設定.
 	// ----------------------------------------------------------------------
-	Client.prototype.registUserName = function() {
+	Client.prototype.setEvent = function() {
 		var self = this;
-		self.userName = localStorage.getItem('ConnectionTestUserName');
-		var $regist = $('#registUserName');
-		if (self.userName) {
-			$regist.hide();
-		} else {
-			var $view = $('#view');
-			$view.hide();
-			$regist.find('button').first().click(function() {
-				var userName = $regist.find('input[type="text"]').first().val();
-				if (userName) {
-					localStorage.setItem('ConnectionTestUserName', userName);
-					self.userName = userName;
-					$regist.hide();
-					$view.show();
-				}
-			});
-		}
+		self.setClientEvent();
+		//self.setEventServer();
+	};
+	// ----------------------------------------------------------------------
+	// イベント設定（クライアント）.
+	// ----------------------------------------------------------------------
+	Client.prototype.setClientEvent = function() {
+		var self = this;
+		// ゲーム参加.
+		$('#addGame').click(function() {
+			var data = {};
+			data.userName = $('#userName').val();
+			self.send("addGame", data);
+		});
+	};
+	// ----------------------------------------------------------------------
+	// イベント設定（サーバー）.
+	// ----------------------------------------------------------------------
+	Client.prototype.setServerEvent = function() {
+		self.ws.onmessage = function (event) {
+			//console.log(event.data);
+			var data = JSON.parse(event.data);
+			var eventName = recieveData.eventName;
+			switch (eventName) {
+				case "client":
+					var text = "";
+					for (var i = 0; i < recieveData.playerList.length; i++) {
+						var d = recieveData.playerList[i];
+						text += d.playerId + " :\n    " + d.positionX + ", " + d.positionY + ", " + d.positionZ + "\n\n";
+					}
+					self.clientMessage.html(text);
+					break;
+				case "host":
+					var text = "";
+					for (var i = 0; i < recieveData.playerList.length; i++) {
+						var d = recieveData.playerList[i];
+						text += d.playerId + " :\n    " + d.positionX + ", " + d.positionY + ", " + d.positionZ + "\n\n";
+					}
+					self.hostMessage.html(text);
+					break;
+			}
+		};
 	};
 	// ----------------------------------------------------------------------
 	// 送信処理.
 	// ----------------------------------------------------------------------
-	Client.prototype.send = function(eventKey, params) {
-		this.socket.emit(eventKey, params);
-	};
-	// ----------------------------------------------------------------------
-	// 接続.
-	// ----------------------------------------------------------------------
-	Client.prototype.connect = function() {
-		var self = this;
-		var timer = setInterval(function() {
-			if (self.userName) {
-				self.send("save", {userName: self.userName});
-			}
-		}, 1000);
-	};
-	// ----------------------------------------------------------------------
-	// 描画.
-	// ----------------------------------------------------------------------
-	Client.prototype.viewUpdate = function(datas) {
-		this.viewUpdateSetsuzoku(datas.setsuzokuList);
-		this.viewUpdateKiroku(datas.kirokuList);
-	};
-	// ----------------------------------------------------------------------
-	// 描画（接続状況）.
-	// ----------------------------------------------------------------------
-	Client.prototype.viewUpdateSetsuzoku = function(setsuzokuList) {
-		var $setsuzoku = $('#setsuzoku').find('tbody');
-		$setsuzoku.empty();
-		var tag = "";
-		$.each(setsuzokuList, function() {
-			tag += "<tr><td>" + this.userName + "</td><td>" + this.lastTime + "</td></tr>";
-		});
-		$setsuzoku.append($(tag));
-	};
-	// ----------------------------------------------------------------------
-	// 描画（切断記録）.
-	// ----------------------------------------------------------------------
-	Client.prototype.viewUpdateKiroku = function(kirokuList) {
-		var $tbody = $('#kiroku').find('tbody');
-		$tbody.empty();
-		var tag = "";
-		$.each(kirokuList, function() {
-			tag += "<tr><td>" + this.userName + "</td><td>" + this.setsudan + "</td><td>" + this.saisetsuzoku + "</td></tr>";
-		});
-		$tbody.append($(tag));
+	Client.prototype.send = function(eventName, sendData) {
+		console.log("send: " + eventName);
+		sendData.eventName = eventName;
+		this.ws.send(JSON.stringify(sendData));
 	};
 	new Client();
 });
