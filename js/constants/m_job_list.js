@@ -1,0 +1,210 @@
+var M_JOB_LIST = [
+	{
+		rankId: "JR000",
+		rankMei: "無職",
+		jobId: "JB000",
+		shokugyoMei: "無職",
+		memoJob: "何も求められず、何も得るものがない職業。夢はある。",
+		memoSkill: "何もしない。",
+		money: 0,
+		strength: 0,
+		intellect: 0,
+		sense: 0,
+		charm: 0
+	},{
+		rankId: "JR010",
+		rankMei: "戦士",
+		jobId: "JB010",
+		shokugyoMei: "戦士",
+		memoJob: "力が求められる職業。魔物を討伐して生計を立てる。",
+		memoSkill: "移動時の消費体力が半分になる。",
+		money: 2,
+		strength: 3,
+		intellect: 0,
+		sense: 0,
+		charm: 0
+	},{
+		rankId: "JR011",
+		rankMei: "勇者",
+		jobId: "JB010",
+		shokugyoMei: "戦士",
+		memoJob: "力が求められる職業。魔物を討伐して生計を立てる。",
+		memoSkill: "土地の事件を解決し、治安を上昇させる。",
+		money: 0,
+		strength: 10,
+		intellect: 0,
+		sense: 6,
+		charm: 6
+	},{
+		rankId: "JR012",
+		rankMei: "騎士",
+		jobId: "JB010",
+		shokugyoMei: "戦士",
+		memoJob: "力が求められる職業。魔物を討伐して生計を立てる。",
+		memoSkill: "指名手配犯一人の場所まで移動して捕まえる。",
+		money: 0,
+		strength: 8,
+		intellect: 5,
+		sense: 0,
+		charm: 0
+	},{
+		rankId: "JR013",
+		rankMei: "スナイパー",
+		jobId: "JB010",
+		shokugyoMei: "戦士",
+		memoJob: "力が求められる職業。賞金首を討伐して生計を立てる。",
+		memoSkill: "付近にいるプレイヤーに致命傷を与えて能力を下げる。",
+		money: 0,
+		strength: 20,
+		intellect: 10,
+		sense: 10,
+		charm: 0
+	},{
+		rankId: "JR020",
+		rankMei: "学者",
+		jobId: "JB020",
+		shokugyoMei: "学者",
+		memoJob: "知性が求められる職業。道具を売買して生計を立てる。",
+		memoSkill: "使用するアイテムの効果を少し上げる。",
+		money: 2,
+		strength: 0,
+		intellect: 3,
+		sense: 0,
+		charm: 0
+	},{
+		rankId: "JR021",
+		rankMei: "魔術者",
+		jobId: "JB020",
+		shokugyoMei: "学者",
+		memoJob: "知性が求められる職業。魔物を討伐して生計を立てる。",
+		memoSkill: "周辺の土地に災害を起こし、人口を減少させる。",
+		money: 2,
+		strength: 0,
+		intellect: 10,
+		sense: 3,
+		charm: 3
+	},{
+		rankId: "JR022",
+		rankMei: "薬師",
+		jobId: "JB020",
+		shokugyoMei: "学者",
+		memoJob: "知性が求められる職業。薬を生成して生計を立てる。",
+		memoSkill: "付近にいる仲間の体力を回復する。",
+		money: 2,
+		strength: 0,
+		intellect: 8,
+		sense: 3,
+		charm: 0
+	},{
+		rankId: "JR023",
+		rankMei: "支配者",
+		jobId: "JB020",
+		shokugyoMei: "学者",
+		memoJob: "知性が求められる職業。物資を徴収して生計を立てる。",
+		memoSkill: "土地のレベルを1つ上げる。",
+		money: 2,
+		strength: 0,
+		intellect: 30,
+		sense: 10,
+		charm: 0
+	},{
+		rankId: "JR030",
+		rankMei: "商人",
+		jobId: "JB030",
+		shokugyoMei: "商人",
+		memoJob: "センスが求められる職業。道具を売買して生計を立てる。",
+		memoSkill: "ショップの販売価格が安くなり、売却価格が高くなる。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 3,
+		charm: 0
+	},{
+		rankId: "JR031",
+		rankMei: "技師",
+		jobId: "JB030",
+		shokugyoMei: "商人",
+		memoJob: "センスが求められる職業。道具を生成して生計を立てる。",
+		memoSkill: "建設時のコストが安くなる。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 3,
+		charm: 0
+	},{
+		rankId: "JR032",
+		rankMei: "操縦士",
+		jobId: "JB030",
+		shokugyoMei: "商人",
+		memoJob: "センスが求められる職業。道具を生成して生計を立てる。",
+		memoSkill: "自分と付近にいる仲間を任意の土地まで移動させる。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 3,
+		charm: 0
+	},{
+		rankId: "JR033",
+		rankMei: "詐欺師",
+		jobId: "JB030",
+		shokugyoMei: "商人",
+		memoJob: "センスが求められる職業。金品を奪って生計を立てる。",
+		memoSkill: "土地の価値の半額分金額を入手する。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 3,
+		charm: 0
+	},{
+		rankId: "JR040",
+		rankMei: "踊り子",
+		jobId: "JB040",
+		shokugyoMei: "踊り子",
+		memoJob: "魅力が求められる職業。夢と希望を与えて生計を立てる。",
+		memoSkill: "滞在した土地の特産品を1つもらえる。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 0,
+		charm: 3
+	},{
+		rankId: "JR041",
+		rankMei: "アイドル",
+		jobId: "JB040",
+		shokugyoMei: "踊り子",
+		memoJob: "魅力が求められる職業。夢と希望を与えて生計を立てる。",
+		memoSkill: "土地でイベントを催し、人口を上昇させる。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 0,
+		charm: 3
+	},{
+		rankId: "JR042",
+		rankMei: "歌姫",
+		jobId: "JB040",
+		shokugyoMei: "踊り子",
+		memoJob: "魅力が求められる職業。夢と希望を与えて生計を立てる。",
+		memoSkill: "2ターンの間、周辺にいるプレイヤーのスキルを使えなくする。",
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 0,
+		charm: 3
+	},{
+		rankId: "JR043",
+		rankMei: "せくしー",
+		jobId: "JB040",
+		shokugyoMei: "踊り子",
+		memoJob: "魅力が求められる職業。金品を謙譲させて生計を立てる。",
+		memoSkill: "付近にいるプレイヤーを誘惑して所有財産を頂戴する。"
+		money: 2,
+		strength: 0,
+		intellect: 0,
+		sense: 0,
+		charm: 3
+	}
+];
+
+
+
