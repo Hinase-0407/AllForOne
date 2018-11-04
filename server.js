@@ -2,6 +2,8 @@
 // サーバー設定.
 // ----------------------------------------------------------------------
 var Util = require('./js/util.js');
+var M_JOB_LIST = require('./js/constants/m_job_list.js');
+console.log(M_JOB_LIST);
 var WebSocketServer = require('ws').Server
 	, http = require('http')
 	, express = require('express')
@@ -29,7 +31,29 @@ function removeConnection(connection) {
 		}
 	}
 }
-
+//----------------------------------------------------------------------
+//特定のクライアントに送信.
+//----------------------------------------------------------------------
+function send(connection, eventName, sendData) {
+	if (!connection) return;
+	sendData.eventName = eventName;
+	try {
+		var json = JSON.stringify(sendData);
+		//console.log(json);
+		connection.send(json);
+	} catch (e) {
+		removeConnection(connection);
+	}
+}
+//----------------------------------------------------------------------
+// サーバー定期処理.
+//----------------------------------------------------------------------
+setInterval(function() {
+	for (var i = 0; i < CON_LIST.length; i++) {
+		var con = CON_LIST[i];
+		send(con, "", );
+	}
+}, 1000);
 //----------------------------------------------------------------------
 // コネクション設定.
 //----------------------------------------------------------------------
