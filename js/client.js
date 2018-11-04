@@ -17,7 +17,7 @@ $(function() {
 	Client.prototype.setEvent = function() {
 		var self = this;
 		self.setClientEvent();
-		//self.setEventServer();
+		self.setServerEvent();
 	};
 	// ----------------------------------------------------------------------
 	// イベント設定（クライアント）.
@@ -35,27 +35,14 @@ $(function() {
 	// イベント設定（サーバー）.
 	// ----------------------------------------------------------------------
 	Client.prototype.setServerEvent = function() {
+		var self = this;
 		self.ws.onmessage = function (event) {
-			//console.log(event.data);
 			var data = JSON.parse(event.data);
-			var eventName = recieveData.eventName;
-			switch (eventName) {
-				case "client":
-					var text = "";
-					for (var i = 0; i < recieveData.playerList.length; i++) {
-						var d = recieveData.playerList[i];
-						text += d.playerId + " :\n    " + d.positionX + ", " + d.positionY + ", " + d.positionZ + "\n\n";
-					}
-					self.clientMessage.html(text);
-					break;
-				case "host":
-					var text = "";
-					for (var i = 0; i < recieveData.playerList.length; i++) {
-						var d = recieveData.playerList[i];
-						text += d.playerId + " :\n    " + d.positionX + ", " + d.positionY + ", " + d.positionZ + "\n\n";
-					}
-					self.hostMessage.html(text);
-					break;
+			var eventName = data.eventName;
+			//console.log(eventName)
+			if (eventName === "showGameInfo") {
+				// マップ一覧表示
+				self.showObjList(data.mapList, "mapList");
 			}
 		};
 	};
@@ -66,6 +53,40 @@ $(function() {
 		console.log("send: " + eventName);
 		sendData.eventName = eventName;
 		this.ws.send(JSON.stringify(sendData));
+	};
+	//----------------------------------------------------------------------
+	// 値リストをテーブル行表示用タグに変換.
+	//----------------------------------------------------------------------
+	Client.prototype.convertTrTd = function(values) {
+		var tag = "<tr>";
+		for (var i = 0; i < values.length; i++) {
+			tag += "<td>" + values[i] + "</td>";
+		}
+		tag += "</tr>";
+		return tag;
+	};
+	// ----------------------------------------------------------------------
+	// マップ一覧表示.
+	// ----------------------------------------------------------------------
+	Client.prototype.showObjList = function(objList, tableId) {
+		var self = this;
+		// 前回の描画情報を保持し、変更があった場合のみ再描画する
+		var json = JSON.stringify(objList);
+		if (self.preObjList === json) return;
+		console.log("showObjList");
+		self.preObjList = json;
+		var tag = "";
+		for (var i = 0; i < objList.length; i++) {
+			var obj = objList[i];
+			var keys = Object.keys(obj);
+			var values = [];
+			for (var j = 0; j < keys.length; j++) {
+				var key = keys[j];
+				values.push(obj[key]);
+			}
+			tag += self.convertTrTd(values);
+		}
+		$("#" + tableId).empty().append($(tag));
 	};
 	new Client();
 });

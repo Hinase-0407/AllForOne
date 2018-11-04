@@ -17,3 +17,4 @@ Util.generateUuid = function() {
 	return chars.join("");
 };
 module.exports = Util;
+
