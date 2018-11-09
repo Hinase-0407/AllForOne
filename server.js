@@ -38,7 +38,7 @@ function removeConnection(connection) {
 //----------------------------------------------------------------------
 function send(connection, eventName, sendData) {
 	if (!connection) return;
-	console.log("send: " + eventName);
+	//console.log("send: " + eventName);
 	sendData.eventName = eventName;
 	try {
 		var json = JSON.stringify(sendData);
@@ -53,7 +53,7 @@ function send(connection, eventName, sendData) {
 // サーバー定期処理.
 //----------------------------------------------------------------------
 setInterval(function() {
-	console.log(CON_LIST.length);
+	//console.log(CON_LIST.length);
 	for (var i = 0; i < CON_LIST.length; i++) {
 		var con = CON_LIST[i];
 		var data = {

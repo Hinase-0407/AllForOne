@@ -76,9 +76,9 @@ $(function() {
 		var self = this;
 		// 前回の描画情報を保持し、変更があった場合のみ再描画する
 		var json = JSON.stringify(objList);
-		if (self.preObjList === json) return;
+		if (self["pre_" + tableId] === json) return;
 		console.log("showObjList");
-		self.preObjList = json;
+		self["pre_" + tableId] = json;
 		var tag = "";
 		for (var i = 0; i < objList.length; i++) {
 			var obj = objList[i];
