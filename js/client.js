@@ -25,10 +25,13 @@ $(function() {
 	Client.prototype.setClientEvent = function() {
 		var self = this;
 		// ゲーム参加.
+		$('#userName').val(localStorage.getItem("userName") || "");
 		$('#addGame').click(function() {
 			var data = {};
 			data.userName = $('#userName').val();
+			data.uuid = localStorage.getItem("uuid");
 			self.send("addGame", data);
+			localStorage.setItem("userName", data.userName);
 		});
 	};
 	// ----------------------------------------------------------------------
@@ -41,12 +44,17 @@ $(function() {
 			var eventName = data.eventName;
 			//console.log(eventName)
 			if (eventName === "showGameInfo") {
+				// プレイヤー一覧表示
+				self.showObjList(data.playerList, "playerList");
 				// マップ一覧表示
 				self.showObjList(data.mapList, "mapList");
 				// アイテム一覧表示
 				self.showObjList(data.itemList, "itemList");
 				// 建物一覧表示
 				self.showObjList(data.buildingList, "buildingList");
+			} else if (eventName === "addGameCallback") {
+				localStorage.setItem("uuid", data.uuid);
+				console.log("addGameCallback: " + data.uuid);
 			}
 		};
 	};

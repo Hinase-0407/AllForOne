@@ -14,13 +14,37 @@ app.use(express.static(__dirname + '/'));
 var server = http.createServer(app);
 var wss = new WebSocketServer({server:server});
 var CON_LIST = [];
+var PLAYER_LIST = [];
 // ----------------------------------------------------------------------
 // ゲーム参加.
 // ----------------------------------------------------------------------
-function addGame(data) {
-	var uuid = Util.generateUuid();
+function addGame(con, data) {
+	console.log("addGame");
+	var uuid = data.uuid;
+	if (uuid === null) uuid = Util.generateUuid();
 	console.log(uuid);
 	console.log(data.userName);
+	var isAdded = false;
+	for (var i = 0; i < PLAYER_LIST.length; i++) {
+		var tmp = PLAYER_LIST[i];
+		if (tmp.uuid === uuid) {
+			isAdded = true;
+			tmp.name = data.userName;
+			break;
+		}
+	}
+	if (!isAdded) {
+		var player = {
+			uuid: uuid,
+			name: data.userName,
+			map: "", // TODO: 初期位置
+			money: 100, // TODO: 初期資金
+			itemList: []
+		};
+		PLAYER_LIST.push(player);
+		console.log("player: " + player.name);
+		send(con, "addGameCallback", {uuid: player.uuid});
+	}
 }
 //----------------------------------------------------------------------
 // 切断.
@@ -57,6 +81,7 @@ setInterval(function() {
 	for (var i = 0; i < CON_LIST.length; i++) {
 		var con = CON_LIST[i];
 		var data = {
+			playerList: PLAYER_LIST,
 			mapList: M_JOB_LIST,
 			itemList: M_ITEM_LIST,
 			buildingList: M_BUILDING_LIST
@@ -78,7 +103,7 @@ wss.on('connection', function(connection) {
 		var data = JSON.parse(message.toString());
 		var eventName = data.eventName;
 		if (eventName === "addGame") {
-			addGame(data);
+			addGame(connection, data);
 		}
 	});
 	// ----------------------------------------------------------------------

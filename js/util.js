@@ -3,6 +3,7 @@ function Util() {}
 // UUID生成.
 // ----------------------------------------------------------------------
 Util.generateUuid = function() {
+	console.log("generateUuid");
 	let chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
 	for (let i = 0, len = chars.length; i < len; i++) {
 		switch (chars[i]) {
