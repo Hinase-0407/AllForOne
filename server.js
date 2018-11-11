@@ -15,6 +15,22 @@ var server = http.createServer(app);
 var wss = new WebSocketServer({server:server});
 var CON_LIST = [];
 var PLAYER_LIST = [];
+//----------------------------------------------------------------------
+//サーバー定期処理.
+//----------------------------------------------------------------------
+setInterval(function() {
+	//console.log(CON_LIST.length);
+	for (var i = 0; i < CON_LIST.length; i++) {
+		var con = CON_LIST[i];
+		var data = {
+			playerList: PLAYER_LIST,
+			jobList: M_JOB_LIST,
+			itemList: M_ITEM_LIST,
+			buildingList: M_BUILDING_LIST
+		};
+		send(con, "showGameInfo", data);
+	}
+}, 500);
 // ----------------------------------------------------------------------
 // ゲーム参加.
 // ----------------------------------------------------------------------
@@ -24,27 +40,105 @@ function addGame(con, data) {
 	if (uuid === null) uuid = Util.generateUuid();
 	console.log(uuid);
 	console.log(data.userName);
-	var isAdded = false;
-	for (var i = 0; i < PLAYER_LIST.length; i++) {
-		var tmp = PLAYER_LIST[i];
-		if (tmp.uuid === uuid) {
-			isAdded = true;
-			tmp.name = data.userName;
-			break;
-		}
-	}
-	if (!isAdded) {
+	var player = getObjByList(PLAYER_LIST, "uuid", uuid);
+	if (!player) {
 		var player = {
 			uuid: uuid,
 			name: data.userName,
 			map: "", // TODO: 初期位置
 			money: 100, // TODO: 初期資金
-			itemList: []
+			itemList: [],
+			params: {
+				hp: 100,
+				intel: 0,
+				charm: 0,
+				power: 0,
+				sense: 0
+			}
 		};
 		PLAYER_LIST.push(player);
 		console.log("player: " + player.name);
 		send(con, "addGameCallback", {uuid: player.uuid});
+	} else {
+		player.name = data.userName;
 	}
+}
+//----------------------------------------------------------------------
+// アイテム購入.
+//----------------------------------------------------------------------
+function buyItem(con, data) {
+	console.log("buyItem");
+	console.log(data);
+	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+
+	// 支払い処理
+	var itemMaster = getObjByList(M_ITEM_LIST, "itemId", data.itemId);
+	payment(player, itemMaster.price * data.count);
+
+	// 所持数変更処理
+	var isExist = false;
+	for (var i = 0; i < player.itemList.length; i++) {
+		var item = player.itemList[i];
+		if (item.itemId === data.itemId) {
+			item.count += data.count;
+			isExist = true;
+			break;
+		}
+	}
+	// 持っていないアイテムの場合、新規追加
+	if (!isExist) {
+		var item = {
+			itemId: data.itemId,
+			count: data.count
+		};
+		player.itemList.push(item);
+	}
+}
+//----------------------------------------------------------------------
+// アイテム使用.
+//----------------------------------------------------------------------
+function useItem(con, data) {
+	console.log("useItem");
+	console.log(data);
+	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+
+	// 所持数変更処理
+	var isExist = false;
+	for (var i = 0; i < player.itemList.length; i++) {
+		var item = player.itemList[i];
+		if (item.itemId === data.itemId) {
+			item.count -= 1;
+			isExist = true;
+			break;
+		}
+	}
+	if (isExist) {
+		var itemMaster = getObjByList(M_ITEM_LIST, "itemId", data.itemId);
+		var efficacyKeys = Object.keys(itemMaster.efficacy);
+		for (var i = 0; i < efficacyKeys.length; i++) {
+			var key = efficacyKeys[i];
+			player.params[key] += itemMaster.efficacy[key];
+		}
+	}
+}
+//----------------------------------------------------------------------
+// リスト内のオブジェクト取得.
+//----------------------------------------------------------------------
+function getObjByList(list, keyName, key) {
+	for (var i = 0; i < list.length; i++) {
+		var tmp = list[i];
+		if (tmp[keyName] === key) {
+			return tmp;
+		}
+	}
+	return null;
+}
+//----------------------------------------------------------------------
+// 支払処理.
+//----------------------------------------------------------------------
+function payment(player, price) {
+	console.log("payment: " + String(price));
+	player.money -= price;
 }
 //----------------------------------------------------------------------
 // 切断.
@@ -74,22 +168,6 @@ function send(connection, eventName, sendData) {
 	}
 }
 //----------------------------------------------------------------------
-// サーバー定期処理.
-//----------------------------------------------------------------------
-setInterval(function() {
-	//console.log(CON_LIST.length);
-	for (var i = 0; i < CON_LIST.length; i++) {
-		var con = CON_LIST[i];
-		var data = {
-			playerList: PLAYER_LIST,
-			mapList: M_JOB_LIST,
-			itemList: M_ITEM_LIST,
-			buildingList: M_BUILDING_LIST
-		};
-		send(con, "showGameInfo", data);
-	}
-}, 1000);
-//----------------------------------------------------------------------
 // コネクション設定.
 //----------------------------------------------------------------------
 wss.on('connection', function(connection) {
@@ -104,6 +182,10 @@ wss.on('connection', function(connection) {
 		var eventName = data.eventName;
 		if (eventName === "addGame") {
 			addGame(connection, data);
+		} else if (eventName === "buyItem") {
+			buyItem(connection, data);
+		} else if (eventName === "useItem") {
+			useItem(connection, data);
 		}
 	});
 	// ----------------------------------------------------------------------

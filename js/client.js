@@ -33,6 +33,28 @@ $(function() {
 			self.send("addGame", data);
 			localStorage.setItem("userName", data.userName);
 		});
+		// アイテム購入
+		$('#itemList').on("click", "tr", function() {
+			console.log("itemList click");
+			console.log(this);
+			var uuid = localStorage.getItem("uuid");
+			if (!uuid) return false;
+			self.send("buyItem", {
+				uuid: uuid,
+				itemId: $(this).data("id"),
+				count: 1
+			});
+		});
+		// アイテム使用
+		$('#useItem').click(function() {
+			console.log("useItem click");
+			var uuid = localStorage.getItem("uuid");
+			if (!uuid) return false;
+			self.send("useItem", {
+				uuid: uuid,
+				itemId: $('#itemId').val()
+			});
+		});
 	};
 	// ----------------------------------------------------------------------
 	// イベント設定（サーバー）.
@@ -47,11 +69,11 @@ $(function() {
 				// プレイヤー一覧表示
 				self.showObjList(data.playerList, "playerList");
 				// マップ一覧表示
-				self.showObjList(data.mapList, "mapList");
+				self.showObjList(data.jobList, "jobList", "jobId");
 				// アイテム一覧表示
-				self.showObjList(data.itemList, "itemList");
+				self.showObjList(data.itemList, "itemList", "itemId");
 				// 建物一覧表示
-				self.showObjList(data.buildingList, "buildingList");
+				self.showObjList(data.buildingList, "buildingList", "buildId");
 			} else if (eventName === "addGameCallback") {
 				localStorage.setItem("uuid", data.uuid);
 				console.log("addGameCallback: " + data.uuid);
@@ -69,10 +91,14 @@ $(function() {
 	//----------------------------------------------------------------------
 	// 値リストをテーブル行表示用タグに変換.
 	//----------------------------------------------------------------------
-	Client.prototype.convertTrTd = function(values) {
-		var tag = "<tr>";
+	Client.prototype.convertTrTd = function(values, id) {
+		var tag = '<tr data-id="' + id + '">';
 		for (var i = 0; i < values.length; i++) {
-			tag += "<td>" + values[i] + "</td>";
+			var value = values[i];
+			if (typeof(value) === "object") {
+				value = JSON.stringify(value);
+			}
+			tag += "<td>" + value + "</td>";
 		}
 		tag += "</tr>";
 		return tag;
@@ -80,7 +106,7 @@ $(function() {
 	// ----------------------------------------------------------------------
 	// マップ一覧表示.
 	// ----------------------------------------------------------------------
-	Client.prototype.showObjList = function(objList, tableId) {
+	Client.prototype.showObjList = function(objList, tableId, idKey) {
 		var self = this;
 		// 前回の描画情報を保持し、変更があった場合のみ再描画する
 		var json = JSON.stringify(objList);
@@ -96,7 +122,7 @@ $(function() {
 				var key = keys[j];
 				values.push(obj[key]);
 			}
-			tag += self.convertTrTd(values);
+			tag += self.convertTrTd(values, obj[idKey]);
 		}
 		$("#" + tableId).empty().append($(tag));
 	};
