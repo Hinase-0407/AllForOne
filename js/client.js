@@ -10,7 +10,15 @@ $(function() {
 		// イベント設定
 		this.setEvent();
 	}
-	
+	// ----------------------------------------------------------------------
+	// 送信処理.
+	// ----------------------------------------------------------------------
+	Client.prototype.send = function(eventName, sendData) {
+		console.log("send: " + eventName);
+		sendData.eventName = eventName;
+		this.ws.send(JSON.stringify(sendData));
+	};
+
 	// ----------------------------------------------------------------------
 	// イベント設定.
 	// ----------------------------------------------------------------------
@@ -37,6 +45,17 @@ $(function() {
 		$('#turnProgress').on("click", function() {
 			var data = {};
 			self.send("turnProgress", data);
+		});
+		// 移動
+		$('#areaList').on("click", "tr", function() {
+			console.log("areaList click");
+			console.log(this);
+			var uuid = localStorage.getItem("uuid");
+			if (!uuid) return false;
+			self.send("moveArea", {
+				uuid: uuid,
+				rankId: $(this).data("id")
+			});
 		});
 		// 転職
 		$('#jobList').on("click", "tr", function() {
@@ -85,6 +104,8 @@ $(function() {
 				// プレイヤー一覧表示
 				self.showObjList(data.playerList, "playerList");
 				// マップ一覧表示
+				self.showObjList(data.areaList, "areaList", "areaId");
+				// 職業一覧表示
 				self.showObjList(data.jobList, "jobList", "rankId");
 				// アイテム一覧表示
 				self.showObjList(data.itemList, "itemList", "itemId");
@@ -97,30 +118,7 @@ $(function() {
 		};
 	};
 	// ----------------------------------------------------------------------
-	// 送信処理.
-	// ----------------------------------------------------------------------
-	Client.prototype.send = function(eventName, sendData) {
-		console.log("send: " + eventName);
-		sendData.eventName = eventName;
-		this.ws.send(JSON.stringify(sendData));
-	};
-	//----------------------------------------------------------------------
-	// 値リストをテーブル行表示用タグに変換.
-	//----------------------------------------------------------------------
-	Client.prototype.convertTrTd = function(values, id) {
-		var tag = '<tr data-id="' + id + '">';
-		for (var i = 0; i < values.length; i++) {
-			var value = values[i];
-			if (typeof(value) === "object") {
-				value = JSON.stringify(value);
-			}
-			tag += "<td>" + value + "</td>";
-		}
-		tag += "</tr>";
-		return tag;
-	};
-	// ----------------------------------------------------------------------
-	// マップ一覧表示.
+	// 情報一覧表示.
 	// ----------------------------------------------------------------------
 	Client.prototype.showObjList = function(objList, tableId, idKey) {
 		var self = this;
@@ -141,6 +139,21 @@ $(function() {
 			tag += self.convertTrTd(values, obj[idKey]);
 		}
 		$("#" + tableId).empty().append($(tag));
+	};
+	//----------------------------------------------------------------------
+	// 値リストをテーブル行表示用タグに変換.
+	//----------------------------------------------------------------------
+	Client.prototype.convertTrTd = function(values, id) {
+		var tag = '<tr data-id="' + id + '">';
+		for (var i = 0; i < values.length; i++) {
+			var value = values[i];
+			if (typeof(value) === "object") {
+				value = JSON.stringify(value);
+			}
+			tag += "<td>" + value + "</td>";
+		}
+		tag += "</tr>";
+		return tag;
 	};
 	new Client();
 });
