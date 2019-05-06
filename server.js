@@ -27,6 +27,7 @@ setInterval(function() {
 			playerList: PLAYER_LIST,
 			jobList: M_JOB_LIST,
 			itemList: M_ITEM_LIST,
+			areaList: M_AREA_LIST,
 			buildingList: M_BUILDING_LIST
 		};
 		send(con, "showGameInfo", data);
