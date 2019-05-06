@@ -5,6 +5,7 @@ var Util = require('./js/util.js');
 var M_JOB_LIST = require('./js/constants/m_job_list.js');
 var M_ITEM_LIST = require('./js/constants/m_item_list.js');
 var M_BUILDING_LIST = require('./js/constants/m_building_list.js');
+var M_AREA_LIST = require('./js/constants/m_area_list.js');
 //console.log(M_JOB_LIST);
 var WebSocketServer = require('ws').Server
 	, http = require('http')
@@ -43,7 +44,7 @@ function removeConnection(connection) {
 	}
 }
 //----------------------------------------------------------------------
-//特定のクライアントに送信.
+// 特定のクライアントに送信.
 //----------------------------------------------------------------------
 function send(connection, eventName, sendData) {
 	if (!connection) return;
@@ -75,10 +76,14 @@ wss.on('connection', function(connection) {
 			addGame(connection, data);
 		} else if (eventName === "turnProgress") {
 			turnProgress();
+		} else if (eventName === "moveArea") {
+			moveArea(data);
+		} else if (eventName === "changeJob") {
+			changeJob(data);
 		} else if (eventName === "buyItem") {
-			buyItem(connection, data);
+			buyItem(data);
 		} else if (eventName === "useItem") {
-			useItem(connection, data);
+			useItem(data);
 		}
 	});
 	// ----------------------------------------------------------------------
@@ -139,9 +144,33 @@ function turnProgress() {
 	}
 }
 //----------------------------------------------------------------------
+// マップ移動.
+//----------------------------------------------------------------------
+function moveArea(data) {
+	console.log("move area.");
+	console.log(data);
+	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+
+	// 移動処理
+	var map = getObjByList(M_AREA_LIST, "areaId", data.areaId);
+	player.map = map;
+}
+//----------------------------------------------------------------------
+// 転職.
+//----------------------------------------------------------------------
+function changeJob(data) {
+	console.log("change Job.");
+	console.log(data);
+	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+
+	// 転職処理
+	var rankId = getObjByList(M_JOB_LIST, "rankId", data.rankId);
+	player.job = rankId;
+}
+//----------------------------------------------------------------------
 // アイテム購入.
 //----------------------------------------------------------------------
-function buyItem(con, data) {
+function buyItem(data) {
 	console.log("buyItem");
 	console.log(data);
 	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
@@ -172,7 +201,7 @@ function buyItem(con, data) {
 //----------------------------------------------------------------------
 // アイテム使用.
 //----------------------------------------------------------------------
-function useItem(con, data) {
+function useItem(data) {
 	console.log("useItem");
 	console.log(data);
 	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);

@@ -38,6 +38,17 @@ $(function() {
 			var data = {};
 			self.send("turnProgress", data);
 		});
+		// 転職
+		$('#jobList').on("click", "tr", function() {
+			console.log("itemList click");
+			console.log(this);
+			var uuid = localStorage.getItem("uuid");
+			if (!uuid) return false;
+			self.send("changeJob", {
+				uuid: uuid,
+				rankId: $(this).data("id")
+			});
+		});
 		// アイテム購入
 		$('#itemList').on("click", "tr", function() {
 			console.log("itemList click");
@@ -74,7 +85,7 @@ $(function() {
 				// プレイヤー一覧表示
 				self.showObjList(data.playerList, "playerList");
 				// マップ一覧表示
-				self.showObjList(data.jobList, "jobList", "jobId");
+				self.showObjList(data.jobList, "jobList", "rankId");
 				// アイテム一覧表示
 				self.showObjList(data.itemList, "itemList", "itemId");
 				// 建物一覧表示
