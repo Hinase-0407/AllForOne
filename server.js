@@ -152,8 +152,8 @@ function moveArea(data) {
 	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
 
 	// 移動処理
-	var map = getObjByList(M_AREA_LIST, "areaId", data.areaId);
-	player.map = map;
+	var mapObject = getObjByList(M_AREA_LIST, "areaId", data.areaId);
+	player.map = mapObject.areaId;
 }
 //----------------------------------------------------------------------
 // 転職.
@@ -164,8 +164,8 @@ function changeJob(data) {
 	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
 
 	// 転職処理
-	var rankId = getObjByList(M_JOB_LIST, "rankId", data.rankId);
-	player.job = rankId;
+	var jobObject = getObjByList(M_JOB_LIST, "rankId", data.rankId);
+	player.job = jobObject.rankId;
 }
 //----------------------------------------------------------------------
 // アイテム購入.
