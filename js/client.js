@@ -4,8 +4,8 @@ $(function() {
 	// ----------------------------------------------------------------------
 	function Client() {
 		// 通信用オブジェクト
-		//var host = "153.126.204.61";
-		var host = "localhost";
+		var host = "153.126.204.61";
+		//var host = "localhost";
 		this.ws = new WebSocket('ws://' + host + ':8005/');
 		// イベント設定
 		this.setEvent();
@@ -32,6 +32,11 @@ $(function() {
 			data.uuid = localStorage.getItem("uuid");
 			self.send("addGame", data);
 			localStorage.setItem("userName", data.userName);
+		});
+		// ターン経過
+		$('#turnProgress').on("click", function() {
+			var data = {};
+			self.send("turnProgress", data);
 		});
 		// アイテム購入
 		$('#itemList').on("click", "tr", function() {

@@ -73,6 +73,8 @@ wss.on('connection', function(connection) {
 		var eventName = data.eventName;
 		if (eventName === "addGame") {
 			addGame(connection, data);
+		} else if (eventName === "turnProgress") {
+			turnProgress();
 		} else if (eventName === "buyItem") {
 			buyItem(connection, data);
 		} else if (eventName === "useItem") {
