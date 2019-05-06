@@ -31,6 +31,63 @@ setInterval(function() {
 		send(con, "showGameInfo", data);
 	}
 }, 500);
+//----------------------------------------------------------------------
+// 切断.
+//----------------------------------------------------------------------
+function removeConnection(connection) {
+	for (var i = CON_LIST.length - 1; i >= 0; i--) {
+		var tmp = CON_LIST[i];
+		if (tmp === connection) {
+			CON_LIST.splice(i, 1);
+		}
+	}
+}
+//----------------------------------------------------------------------
+//特定のクライアントに送信.
+//----------------------------------------------------------------------
+function send(connection, eventName, sendData) {
+	if (!connection) return;
+	//console.log("send: " + eventName);
+	sendData.eventName = eventName;
+	try {
+		var json = JSON.stringify(sendData);
+		//console.log(json);
+		connection.send(json);
+	} catch (e) {
+		console.log("send error");
+		removeConnection(connection);
+	}
+}
+//----------------------------------------------------------------------
+// コネクション設定.
+//----------------------------------------------------------------------
+wss.on('connection', function(connection) {
+	CON_LIST.push(connection);
+	console.log('connected!');
+	// ----------------------------------------------------------------------
+	// メッセージ受信.
+	// ----------------------------------------------------------------------
+	connection.on('message', function(message) {
+		console.log("message");
+		var data = JSON.parse(message.toString());
+		var eventName = data.eventName;
+		if (eventName === "addGame") {
+			addGame(connection, data);
+		} else if (eventName === "buyItem") {
+			buyItem(connection, data);
+		} else if (eventName === "useItem") {
+			useItem(connection, data);
+		}
+	});
+	// ----------------------------------------------------------------------
+	// 切断.
+	// ----------------------------------------------------------------------
+	connection.on('close', function() {
+		console.log('disconnected...');
+		removeConnection(connection);
+	});
+});
+
 // ----------------------------------------------------------------------
 // ゲーム参加.
 // ----------------------------------------------------------------------
@@ -47,6 +104,7 @@ function addGame(con, data) {
 			name: data.userName,
 			map: "", // TODO: 初期位置
 			money: 100, // TODO: 初期資金
+			job: "JR000", // TODO: 初期職業
 			itemList: [],
 			params: {
 				hp: 100,
@@ -61,6 +119,21 @@ function addGame(con, data) {
 		send(con, "addGameCallback", {uuid: player.uuid});
 	} else {
 		player.name = data.userName;
+	}
+}
+//----------------------------------------------------------------------
+// ターン経過.
+//----------------------------------------------------------------------
+function turnProgress() {
+	console.log("next turn.");
+
+	// 各プレイヤーに収益処理
+	for (var i = 0; i < PLAYER_LIST.length; i++) {
+		var player = PLAYER_LIST[i];
+		// 給与
+		var jobMaster = getObjByList(M_JOB_LIST, "rankId", player.job);
+		income(player.uuid, jobMaster.money);
+		// 物件収入
 	}
 }
 //----------------------------------------------------------------------
@@ -141,59 +214,12 @@ function payment(player, price) {
 	player.money -= price;
 }
 //----------------------------------------------------------------------
-// 切断.
+// 収入処理.
 //----------------------------------------------------------------------
-function removeConnection(connection) {
-	for (var i = CON_LIST.length - 1; i >= 0; i--) {
-		var tmp = CON_LIST[i];
-		if (tmp === connection) {
-			CON_LIST.splice(i, 1);
-		}
-	}
+function income(player, price) {
+	console.log("income: " + String(price));
+	player.money += price;
 }
-//----------------------------------------------------------------------
-//特定のクライアントに送信.
-//----------------------------------------------------------------------
-function send(connection, eventName, sendData) {
-	if (!connection) return;
-	//console.log("send: " + eventName);
-	sendData.eventName = eventName;
-	try {
-		var json = JSON.stringify(sendData);
-		//console.log(json);
-		connection.send(json);
-	} catch (e) {
-		console.log("send error");
-		removeConnection(connection);
-	}
-}
-//----------------------------------------------------------------------
-// コネクション設定.
-//----------------------------------------------------------------------
-wss.on('connection', function(connection) {
-	CON_LIST.push(connection);
-	console.log('connected!');
-	// ----------------------------------------------------------------------
-	// メッセージ受信.
-	// ----------------------------------------------------------------------
-	connection.on('message', function(message) {
-		console.log("message");
-		var data = JSON.parse(message.toString());
-		var eventName = data.eventName;
-		if (eventName === "addGame") {
-			addGame(connection, data);
-		} else if (eventName === "buyItem") {
-			buyItem(connection, data);
-		} else if (eventName === "useItem") {
-			useItem(connection, data);
-		}
-	});
-	// ----------------------------------------------------------------------
-	// 切断.
-	// ----------------------------------------------------------------------
-	connection.on('close', function() {
-		console.log('disconnected...');
-		removeConnection(connection);
-	});
-});
+
+
 server.listen(8005);
