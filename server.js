@@ -139,7 +139,7 @@ function turnProgress() {
 		var player = PLAYER_LIST[i];
 		// 給与
 		var jobMaster = getObjByList(M_JOB_LIST, "rankId", player.job);
-		income(player.uuid, jobMaster.money);
+		income(player, jobMaster.money);
 		// 物件収入
 	}
 }
@@ -241,15 +241,15 @@ function getObjByList(list, keyName, key) {
 // 支払処理.
 //----------------------------------------------------------------------
 function payment(player, price) {
-	console.log("payment: " + String(price));
 	player.money -= price;
+	console.log("payment: " + String(price) + ", result money:" + String(player.money));
 }
 //----------------------------------------------------------------------
 // 収入処理.
 //----------------------------------------------------------------------
 function income(player, price) {
-	console.log("income: " + String(price));
 	player.money += price;
+	console.log("income: " + String(price) + ", result money:" + String(player.money));
 }
 
 
