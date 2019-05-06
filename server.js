@@ -110,7 +110,7 @@ function addGame(con, data) {
 		var player = {
 			uuid: uuid,
 			name: data.userName,
-			map: "", // TODO: 初期位置
+			map: "AR013", // TODO: 初期位置
 			money: 100, // TODO: 初期資金
 			job: "JR000", // TODO: 初期職業
 			itemList: [],
@@ -155,6 +155,7 @@ function moveArea(data) {
 	// 移動処理
 	var mapObject = getObjByList(M_AREA_LIST, "areaId", data.areaId);
 	player.map = mapObject.areaId;
+	player.params.hp -= 1;
 }
 //----------------------------------------------------------------------
 // 転職.

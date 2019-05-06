@@ -54,7 +54,7 @@ $(function() {
 			if (!uuid) return false;
 			self.send("moveArea", {
 				uuid: uuid,
-				rankId: $(this).data("id")
+				areaId: $(this).data("id")
 			});
 		});
 		// 転職
