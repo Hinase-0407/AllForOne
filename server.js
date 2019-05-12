@@ -104,12 +104,12 @@ function addGame(con, data) {
 	var playerId = data.playerId;
 	if (playerId === null) playerId = Util.generateUuid();
 	console.log(playerId);
-	console.log(data.userName);
+	console.log(data.playerName);
 	var player = getObjByList(PLAYER_LIST, "playerId", playerId);
 	if (!player) {
 		var player = {
 			playerId: playerId,
-			name: data.userName,
+			playerName: data.playerName,
 			map: "AR013", // TODO: 初期位置
 			money: 100, // TODO: 初期資金
 			job: "JR000", // TODO: 初期職業
@@ -123,10 +123,10 @@ function addGame(con, data) {
 			}
 		};
 		PLAYER_LIST.push(player);
-		console.log("player: " + player.name);
+		console.log("player: " + player.playerName);
 		send(con, "addGameCallback", {playerId: player.playerId});
 	} else {
-		player.name = data.userName;
+		player.playerName = data.playerName;
 	}
 }
 //----------------------------------------------------------------------
