@@ -106,7 +106,7 @@ wss.on('connection', function(connection) {
 function addGame(con, data) {
 	console.log("addGame");
 	var playerId = data.playerId;
-	if (playerId === null) playerId = Util.generateUuid();
+	if (!playerId) playerId = Util.generateUuid();
 	console.log(playerId);
 	console.log(data.playerName);
 	var player = getObjByList(PLAYER_LIST, "playerId", playerId);
