@@ -168,9 +168,10 @@ $(function() {
 		if (self["pre_gameInfo"] === json) return;
 
 		self["pre_gameInfo"] = json;
-		var tag = "";
-
-		$("#").empty().append($(tag));
+		var text = "";
+		// ターン数表示
+		text = gameInfo.turn;
+		$("#turn").text(text);
 	}
 		new Client();
 });
