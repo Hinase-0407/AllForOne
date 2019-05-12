@@ -146,6 +146,8 @@ function turnProgress() {
 		var jobMaster = getObjByList(M_JOB_LIST, "rankId", player.job);
 		income(player, jobMaster.money);
 		// 物件収入
+		// ターン数増加
+		gameInfo.turn ++;
 	}
 }
 //----------------------------------------------------------------------
