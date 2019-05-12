@@ -105,14 +105,14 @@ wss.on('connection', function(connection) {
 // ----------------------------------------------------------------------
 function addGame(con, data) {
 	console.log("addGame");
-	var uuid = data.uuid;
-	if (uuid === null) uuid = Util.generateUuid();
-	console.log(uuid);
+	var playerId = data.playerId;
+	if (playerId === null) playerId = Util.generateUuid();
+	console.log(playerId);
 	console.log(data.userName);
-	var player = getObjByList(PLAYER_LIST, "uuid", uuid);
+	var player = getObjByList(PLAYER_LIST, "playerId", playerId);
 	if (!player) {
 		var player = {
-			uuid: uuid,
+			playerId: playerId,
 			name: data.userName,
 			map: "AR013", // TODO: 初期位置
 			money: 100, // TODO: 初期資金
@@ -128,7 +128,7 @@ function addGame(con, data) {
 		};
 		PLAYER_LIST.push(player);
 		console.log("player: " + player.name);
-		send(con, "addGameCallback", {uuid: player.uuid});
+		send(con, "addGameCallback", {playerId: player.playerId});
 	} else {
 		player.name = data.userName;
 	}
@@ -154,7 +154,7 @@ function turnProgress() {
 function moveArea(data) {
 	console.log("move area.");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 移動処理
 	var mapObject = getObjByList(M_AREA_LIST, "areaId", data.areaId);
@@ -167,7 +167,7 @@ function moveArea(data) {
 function changeJob(data) {
 	console.log("change Job.");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 転職処理
 	var jobObject = getObjByList(M_JOB_LIST, "rankId", data.rankId);
@@ -179,7 +179,7 @@ function changeJob(data) {
 function buyItem(data) {
 	console.log("buyItem");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 支払い処理
 	var itemMaster = getObjByList(M_ITEM_LIST, "itemId", data.itemId);
@@ -210,7 +210,7 @@ function buyItem(data) {
 function useItem(data) {
 	console.log("useItem");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "uuid", data.uuid);
+	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 所持数変更処理
 	var isExist = false;
