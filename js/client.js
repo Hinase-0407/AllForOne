@@ -33,13 +33,13 @@ $(function() {
 	Client.prototype.setClientEvent = function() {
 		var self = this;
 		// ゲーム参加.
-		$('#userName').val(localStorage.getItem("userName") || "");
+		$('#userName').val(localStorage.getItem("playerName") || "");
 		$('#addGame').click(function() {
 			var data = {};
-			data.userName = $('#userName').val();
+			data.playerName = $('#userName').val();
 			data.playerId = localStorage.getItem("playerId");
 			self.send("addGame", data);
-			localStorage.setItem("userName", data.userName);
+			localStorage.setItem("playerName", data.playerName);
 		});
 		// ターン経過
 		$('#turnProgress').on("click", function() {
