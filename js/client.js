@@ -37,7 +37,7 @@ $(function() {
 		$('#addGame').click(function() {
 			var data = {};
 			data.userName = $('#userName').val();
-			data.uuid = localStorage.getItem("uuid");
+			data.playerId = localStorage.getItem("playerId");
 			self.send("addGame", data);
 			localStorage.setItem("userName", data.userName);
 		});
@@ -50,10 +50,10 @@ $(function() {
 		$('#areaList').on("click", "tr", function() {
 			console.log("areaList click");
 			console.log(this);
-			var uuid = localStorage.getItem("uuid");
-			if (!uuid) return false;
+			var playerId = localStorage.getItem("playerId");
+			if (!playerId) return false;
 			self.send("moveArea", {
-				uuid: uuid,
+				playerId: playerId,
 				areaId: $(this).data("id")
 			});
 		});
@@ -61,10 +61,10 @@ $(function() {
 		$('#jobList').on("click", "tr", function() {
 			console.log("itemList click");
 			console.log(this);
-			var uuid = localStorage.getItem("uuid");
-			if (!uuid) return false;
+			var playerId = localStorage.getItem("playerId");
+			if (!playerId) return false;
 			self.send("changeJob", {
-				uuid: uuid,
+				playerId: playerId,
 				rankId: $(this).data("id")
 			});
 		});
@@ -72,10 +72,10 @@ $(function() {
 		$('#itemList').on("click", "tr", function() {
 			console.log("itemList click");
 			console.log(this);
-			var uuid = localStorage.getItem("uuid");
-			if (!uuid) return false;
+			var playerId = localStorage.getItem("playerId");
+			if (!playerId) return false;
 			self.send("buyItem", {
-				uuid: uuid,
+				playerId: playerId,
 				itemId: $(this).data("id"),
 				count: 1
 			});
@@ -83,10 +83,10 @@ $(function() {
 		// アイテム使用
 		$('#useItem').click(function() {
 			console.log("useItem click");
-			var uuid = localStorage.getItem("uuid");
-			if (!uuid) return false;
+			var playerId = localStorage.getItem("playerId");
+			if (!playerId) return false;
 			self.send("useItem", {
-				uuid: uuid,
+				playerId: playerId,
 				itemId: $('#itemId').val()
 			});
 		});
@@ -112,8 +112,8 @@ $(function() {
 				// 建物一覧表示
 				self.showObjList(data.buildingList, "buildingList", "buildId");
 			} else if (eventName === "addGameCallback") {
-				localStorage.setItem("uuid", data.uuid);
-				console.log("addGameCallback: " + data.uuid);
+				localStorage.setItem("playerId", data.playerId);
+				console.log("addGameCallback: " + data.playerId);
 			}
 		};
 	};
