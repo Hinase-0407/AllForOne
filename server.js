@@ -253,6 +253,17 @@ function income(player, price) {
 	player.money += price;
 	console.log("income: " + String(price) + ", result money:" + String(player.money));
 }
+/*
 
+ターン経過時にターン数増加・体力回復
+土地購入・所有者表示
+土地収益処理
+増資処理
+施設レベルアップ
+
+ゲームクラス作成
+ゲームクラスの登録
+ゲームクラスの表示
+*/
 
 server.listen(8005);
