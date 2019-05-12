@@ -101,6 +101,8 @@ $(function() {
 			var eventName = data.eventName;
 			//console.log(eventName)
 			if (eventName === "showGameInfo") {
+				// ターン数表示
+				self.showGameInfo(data.gameInfo);
 				// プレイヤー一覧表示
 				self.showObjList(data.playerList, "playerList");
 				// マップ一覧表示
@@ -125,6 +127,7 @@ $(function() {
 		// 前回の描画情報を保持し、変更があった場合のみ再描画する
 		var json = JSON.stringify(objList);
 		if (self["pre_" + tableId] === json) return;
+
 		console.log("showObjList");
 		self["pre_" + tableId] = json;
 		var tag = "";
@@ -155,5 +158,19 @@ $(function() {
 		tag += "</tr>";
 		return tag;
 	};
-	new Client();
+	//----------------------------------------------------------------------
+	// ゲーム情報を表示.
+	//----------------------------------------------------------------------
+	Client.prototype.showGameInfo = function(gameInfo) {
+		var self = this;
+		// 前回の描画情報を保持し、変更があった場合のみ再描画する
+		var json = JSON.stringify(gameInfo);
+		if (self["pre_gameInfo"] === json) return;
+
+		self["pre_gameInfo"] = json;
+		var tag = "";
+
+		$("#").empty().append($(tag));
+	}
+		new Client();
 });

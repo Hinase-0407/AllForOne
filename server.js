@@ -16,6 +16,9 @@ var server = http.createServer(app);
 var wss = new WebSocketServer({server:server});
 var CON_LIST = [];
 var PLAYER_LIST = [];
+var gameInfo = {
+	turn: 1 
+};
 //----------------------------------------------------------------------
 //サーバー定期処理.
 //----------------------------------------------------------------------
@@ -24,6 +27,7 @@ setInterval(function() {
 	for (var i = 0; i < CON_LIST.length; i++) {
 		var con = CON_LIST[i];
 		var data = {
+			gameInfo: gameInfo,
 			playerList: PLAYER_LIST,
 			jobList: M_JOB_LIST,
 			itemList: M_ITEM_LIST,

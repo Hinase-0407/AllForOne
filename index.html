@@ -15,14 +15,24 @@
 			<input id="userName" type="text" />
 			<input id="addGame" type="button" class="button_base" value="参加" />
 		</div>
-		<h2>アイテムID</h2>
+		<h2>ターン制御</h2>
 		<div class="info_area">
+			<span>ターン数：</span><span id="turn"></span>
+			<input id="turnProgress" type="button" class="button_base" value="ターン経過" />
+		</div>
+		<h2>アイテム使用</h2>
+		<div class="info_area">
+			<span>アイテムID</span>
 			<input id="itemId" type="text" />
 			<input id="useItem" type="button" class="button_base" value="使用" />
 		</div>
-		<h2>ターン制御</h2>
+		<h2>建築</h2>
 		<div class="info_area">
-			<input id="turnProgress" type="button" class="button_base" value="経過" />
+			<span>エリアID</span>
+			<input id="areaId" type="text" />
+			<span>建物ID</span>
+			<input id="buildId" type="text" />
+			<input id="useItem" type="button" class="button_base" value="土地購入・建築" />
 		</div>
 		<h2>プレイヤー一覧</h2>
 		<div><table id="playerList"></table></div>
