@@ -7,7 +7,7 @@ var M_ITEM_LIST = [
 		classMei: "薬",
 		memo: "1ターンの間消費体力を半分にする",
 		efficacy: {
-			tairyokuShohiritsu: -0.5
+			tairyokuShohiritsu: 0.5
 		}
 	}, {
 		itemId: "IM001",
@@ -17,7 +17,7 @@ var M_ITEM_LIST = [
 		classMei: "薬",
 		memo: "1ターンの間消費体力を0にする",
 		efficacy: {
-			tairyokuShohiritsu: -1
+			tairyokuShohiritsu: 1
 		}
 	}, {
 		itemId: "IM002",
@@ -27,7 +27,7 @@ var M_ITEM_LIST = [
 		classMei: "薬",
 		memo: "知性パラメーター4アップ",
 		efficacy: {
-			intel: 4
+			intellect: 4
 		}
 	}, {
 		itemId: "IM003",
@@ -37,7 +37,7 @@ var M_ITEM_LIST = [
 		classMei: "薬",
 		memo: "知性パラメーター8アップ",
 		efficacy: {
-			intel: 8
+			intellect: 8
 		}
 	}, {
 		itemId: "IM004",
@@ -105,14 +105,16 @@ var M_ITEM_LIST = [
 		classId: "JB030",
 		price: 1000,
 		classMei: "道具",
-		memo: "指定したプレイヤーの体力を5減らす"
+		memo: "指定したプレイヤーの体力を5減らす",
+		efficacy: {hp: -5}
 	}, {
 		itemId: "IM011",
 		itemMei: "爆弾",
 		classId: "JB030",
 		price: 5000,
 		classMei: "道具",
-		memo: "指定した土地の人口と治安を減少させる"
+		memo: "指定した土地の人口と治安を減少させる",
+		efficacy: {peo: -5, sec:-5}
 	}, {
 		itemId: "IM012",
 		itemMei: "バス回数券(10マス)",
@@ -126,28 +128,32 @@ var M_ITEM_LIST = [
 		classId: "JB040",
 		price: 1000,
 		classMei: "チケット",
-		memo: "建設時のコストが安くなる"
+		memo: "建設時のコストが安くなる",
+		efficacy: {buildCost: 0.75}
 	}, {
 		itemId: "IM014",
 		itemMei: "土地の権利書",
 		classId: "JB040",
 		price: 5000,
 		classMei: "チケット",
-		memo: "建設時のコストが大幅に安くなる"
+		memo: "建設時のコストが大幅に安くなる",
+		efficacy: {buildCost: 0.5}
 	}, {
 		itemId: "IM015",
 		itemMei: "ギフト券",
 		classId: "JB040",
 		price: 1000,
 		classMei: "チケット",
-		memo: "商品1000円分無料になる（お釣りは出ません）"
+		memo: "商品1000円分無料になる（お釣りは出ません）",
+		efficacy: {nebiki: 1000}
 	}, {
 		itemId: "IM016",
 		itemMei: "買取アップ券",
 		classId: "JB040",
 		price: 500,
 		classMei: "チケット",
-		memo: "ショップの買取価格が半額になる"
+		memo: "ショップの買取価格が半額になる",
+		efficacy: {}
 	}
 ];
 module.exports = M_ITEM_LIST;

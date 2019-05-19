@@ -17,11 +17,12 @@ var wss = new WebSocketServer({server:server});
 var CON_LIST = [];
 var PLAYER_LIST = [];
 var gameInfo = {
-	turn: 1 
+	turn: 1,
+	endTurn: 30
 };
-//----------------------------------------------------------------------
-//サーバー定期処理.
-//----------------------------------------------------------------------
+/**
+ * サーバー定期処理. 
+ */
 setInterval(function() {
 	//console.log(CON_LIST.length);
 	for (var i = 0; i < CON_LIST.length; i++) {
@@ -37,9 +38,10 @@ setInterval(function() {
 		send(con, "showGameInfo", data);
 	}
 }, 500);
-//----------------------------------------------------------------------
-// 切断.
-//----------------------------------------------------------------------
+/**
+ * 切断.
+ * @param {*} connection 
+ */
 function removeConnection(connection) {
 	for (var i = CON_LIST.length - 1; i >= 0; i--) {
 		var tmp = CON_LIST[i];
@@ -48,9 +50,12 @@ function removeConnection(connection) {
 		}
 	}
 }
-//----------------------------------------------------------------------
-// 特定のクライアントに送信.
-//----------------------------------------------------------------------
+/**
+ * 特定のクライアントに送信.
+ * @param {*} connection 
+ * @param {*} eventName 
+ * @param {*} sendData 
+ */
 function send(connection, eventName, sendData) {
 	if (!connection) return;
 	//console.log("send: " + eventName);
@@ -64,9 +69,9 @@ function send(connection, eventName, sendData) {
 		removeConnection(connection);
 	}
 }
-//----------------------------------------------------------------------
-// コネクション設定.
-//----------------------------------------------------------------------
+/**
+ * コネクション設定.
+ */
 wss.on('connection', function(connection) {
 	CON_LIST.push(connection);
 	console.log('connected!');
@@ -77,18 +82,39 @@ wss.on('connection', function(connection) {
 		console.log("message");
 		var data = JSON.parse(message.toString());
 		var eventName = data.eventName;
-		if (eventName === "addGame") {
-			addGame(connection, data);
-		} else if (eventName === "turnProgress") {
-			turnProgress();
-		} else if (eventName === "moveArea") {
-			moveArea(data);
-		} else if (eventName === "changeJob") {
-			changeJob(data);
-		} else if (eventName === "buyItem") {
-			buyItem(data);
-		} else if (eventName === "useItem") {
-			useItem(data);
+		switch (eventName)
+		{
+			case "addGame":
+				addGame(connection, data);
+			break;
+			
+			case "turnProgress":
+				turnProgress();
+			break;
+
+			case "moveArea":
+				moveArea(data);
+			break;
+
+			case "changeJob":
+				changeJob(data);
+			break;
+
+			case "buyItem":
+				buyItem(data);
+			break;
+
+			case "useItem":
+				useItem(data);
+			break;
+
+			case "buyBuild":
+				buyBuild(data);
+			break;
+
+			case "restHotel":
+				restHotel(data);
+			break;
 		}
 	});
 	// ----------------------------------------------------------------------
@@ -100,9 +126,11 @@ wss.on('connection', function(connection) {
 	});
 });
 
-// ----------------------------------------------------------------------
-// ゲーム参加.
-// ----------------------------------------------------------------------
+/**
+ * ゲーム参加.
+ * @param {*} con 
+ * @param {*} data 
+ */
 function addGame(con, data) {
 	console.log("addGame");
 	var playerId = data.playerId;
@@ -114,16 +142,18 @@ function addGame(con, data) {
 		var player = {
 			playerId: playerId,
 			playerName: data.playerName,
-			map: "AR013", // TODO: 初期位置
 			money: 100, // TODO: 初期資金
+			map: "AR014", // TODO: 初期位置
 			job: "JR000", // TODO: 初期職業
+			team: null,
 			itemList: [],
 			params: {
 				hp: 100,
-				intel: 0,
-				charm: 0,
 				power: 0,
-				sense: 0
+				intellect: 0,
+				sense: 0,
+				charm: 0,
+				moral: 0
 			}
 		};
 		PLAYER_LIST.push(player);
@@ -133,26 +163,33 @@ function addGame(con, data) {
 		player.playerName = data.playerName;
 	}
 }
-//----------------------------------------------------------------------
-// ターン経過.
-//----------------------------------------------------------------------
+/**
+ * ターン経過.
+ */
 function turnProgress() {
 	console.log("next turn.");
 
-	// 各プレイヤーに収益処理
+	// 各プレイヤーに収益処理・体力回復
 	for (var i = 0; i < PLAYER_LIST.length; i++) {
 		var player = PLAYER_LIST[i];
 		// 給与
 		var jobMaster = getObjByList(M_JOB_LIST, "rankId", player.job);
-		income(player, jobMaster.money);
 		// 物件収入
-		// ターン数増加
-		gameInfo.turn ++;
+		income(player, jobMaster.money);
+
+		// アイテム取得
+		var jobItemList = getJobItemList(jobMaster.jobId);
+
+		// 体力回復処理
+		healHp(player, 2);
 	}
+	// ターン数増加
+	gameInfo.turn ++;
 }
-//----------------------------------------------------------------------
-// マップ移動.
-//----------------------------------------------------------------------
+/**
+ * マップ移動.
+ * @param {*} data 
+ */
 function moveArea(data) {
 	console.log("move area.");
 	console.log(data);
@@ -163,9 +200,10 @@ function moveArea(data) {
 	player.map = mapObject.areaId;
 	player.params.hp -= 1;
 }
-//----------------------------------------------------------------------
-// 転職.
-//----------------------------------------------------------------------
+/**
+ * 転職.
+ * @param {*} data 
+ */
 function changeJob(data) {
 	console.log("change Job.");
 	console.log(data);
@@ -175,9 +213,10 @@ function changeJob(data) {
 	var jobObject = getObjByList(M_JOB_LIST, "rankId", data.rankId);
 	player.job = jobObject.rankId;
 }
-//----------------------------------------------------------------------
-// アイテム購入.
-//----------------------------------------------------------------------
+/**
+ * アイテム購入.
+ * @param {*} data 
+ */
 function buyItem(data) {
 	console.log("buyItem");
 	console.log(data);
@@ -206,9 +245,10 @@ function buyItem(data) {
 		player.itemList.push(item);
 	}
 }
-//----------------------------------------------------------------------
-// アイテム使用.
-//----------------------------------------------------------------------
+/**
+ * アイテム使用.
+ * @param {*} data 
+ */
 function useItem(data) {
 	console.log("useItem");
 	console.log(data);
@@ -233,9 +273,40 @@ function useItem(data) {
 		}
 	}
 }
-//----------------------------------------------------------------------
-// リスト内のオブジェクト取得.
-//----------------------------------------------------------------------
+function buyBuild(data) {
+	console.log("buyBuild.");
+	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
+	var area = getObjByList(M_AREA_LIST, "areaId", player.map);
+	var build = getObjByList(M_BUILDING_LIST, "buildId", data.buildId);
+	// 購入・買収チェック
+	var buyCost = (!area.playerId || area.playerId === data.playerId) ? 1 : 3;
+	// 金額チェック
+	var canBuy = build.cost * buyCost <= player.money;
+	// 建設条件チェック
+	var canBuild = (build.population <= area.peo) && (build.security <= area.sec);
+	// 全てのチェックがOKだったら購入
+	if (canBuy && canBuild) {
+		payment(player.money, build.cost * buyCost);
+		area.playerId = data.playerId;
+		area.buildId = data.buildId;
+	} else {
+		if (!canBuy) console.log("購入費用が不足しています。");
+		if (!canBuild) console.log("施設設置条件を満たしていません。"); 
+	}
+}
+function restHotel(data) {
+	console.log("restHotel.");
+	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
+	var area = getObjByList(M_AREA_LIST, "areaId", player.map);
+	var build = getObjByList(M_BUILDING_LIST, "buildId", data.buildId);
+	// 
+}
+/**
+ * リスト内のオブジェクト取得.
+ * @param {Array} list 検索対象リスト 
+ * @param {String} keyName 検索するリスト情報の名称
+ * @param {String} key 検索する値
+ */
 function getObjByList(list, keyName, key) {
 	for (var i = 0; i < list.length; i++) {
 		var tmp = list[i];
@@ -245,22 +316,55 @@ function getObjByList(list, keyName, key) {
 	}
 	return null;
 }
-//----------------------------------------------------------------------
-// 支払処理.
-//----------------------------------------------------------------------
+/**
+ * 支払処理.
+ * @param {Object} player 支払いをするプレイヤー
+ * @param {Number} price 支払の数値
+ */
 function payment(player, price) {
 	player.money -= price;
 	console.log("payment: " + String(price) + ", result money:" + String(player.money));
 }
-//----------------------------------------------------------------------
-// 収入処理.
-//----------------------------------------------------------------------
+/**
+ * 収入処理.
+ * @param {Object} player 収益を得るプレイヤー
+ * @param {Number} price 収益の数値
+ */
 function income(player, price) {
 	player.money += price;
 	console.log("income: " + String(price) + ", result money:" + String(player.money));
 }
+/**
+ * 対象のリストに登録されたクラスの数値を合計して返す.
+ * @param {Array} list 対象のリスト
+ * @param {String} sumClass 合計対象のリストの名称
+ */
+function sumListClass(list, sumClass) {
+	var sumVal = 0;
+	for (var i = 0, len = list.length; i < len; i++) {
+		var tmp = list[i];
+		sumVal += Number(tmp[sumClass]);
+	}
+	return sumVal;
+}
+/**
+ * 体力回復処理.
+ * @param {Object} player 体力が回復するプレイヤー
+ * @param {Number} rest HPが回復する数値
+ */
+function healHp(player, rest) {
+	var maxHp = 100;
+	player.params.hp = (player.params.hp + rest < maxHp) ? player.params.hp + rest : maxHp;
+}
+/**
+ * 2人のプレイヤーが同じチームかどうか真偽値を返す.
+ * @param {Object} player1 比較対象のプレイヤー1
+ * @param {Object} player2 比較対象のプレイヤー2
+ */
+function isSameTeam(player1, player2) {
+	return true;
+}
 /*
-
 ターン経過時にターン数増加・体力回復
 土地購入・所有者表示
 土地収益処理

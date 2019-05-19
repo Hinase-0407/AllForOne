@@ -90,6 +90,17 @@ $(function() {
 				itemId: $('#itemId').val()
 			});
 		});
+		// 土地購入（施設建設）
+		$('#buyBuild').click(function() {
+			console.log("buyBuild click");
+			var build = getBuildInfo();
+			// 持ち主がいなければ、通常購入
+			// 持ち主がいれば、3倍価格で買収
+		});
+		// 施設利用
+		$('#useBuild').click(function() {
+			console.log("useBuild click");
+		});
 	};
 	// ----------------------------------------------------------------------
 	// イベント設定（サーバー）.

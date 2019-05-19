@@ -7,6 +7,7 @@ var M_BUILDING_LIST = [
 		security: 0,
 		income: 0,
 		matchJob: "JB000",
+		efficacy: {},
 		effect: "なし。",
 		memo: "何も無い場所。草生える。"
 	}, {
@@ -17,6 +18,7 @@ var M_BUILDING_LIST = [
 		security: 10,
 		income: 10,
 		matchJob: "JB000",
+		efficacy: {peo: 3},
 		effect: "周辺地域の人口+3。",
 		memo: "人々が生活する施設。周辺地域の人口が自動で増える。"
 	}, {
@@ -27,6 +29,7 @@ var M_BUILDING_LIST = [
 		security: 50,
 		income: 50,
 		matchJob: "JB000",
+		efficacy: {peo: 5},
 		effect: "周辺地域の人口+5。",
 		memo: "人々が生活する施設が集まる土地。周辺地域の人口が結構増える。"
 	}, {
@@ -37,6 +40,7 @@ var M_BUILDING_LIST = [
 		security: 20,
 		income: 20,
 		matchJob: "JB010",
+		efficacy: {sec: 3},
 		effect: "周辺地域の治安+3",
 		memo: "土地を守る施設。指名手配犯は通過・滞在ができない。"
 	}, {
@@ -47,6 +51,7 @@ var M_BUILDING_LIST = [
 		security: 100,
 		income: 100,
 		matchJob: "JB010",
+		efficacy: {sec: 5},
 		effect: "周辺地域の治安+5",
 		memo: "周辺地域の守る施設。指名手配犯が通過・滞在すると捕まる。"
 	}, {
@@ -77,6 +82,7 @@ var M_BUILDING_LIST = [
 		security: 20,
 		income: 20,
 		matchJob: "JB020",
+		efficacy: {moneypara: 5},
 		effect: "有料で任意のパラメータを5アップできる。",
 		memo: "人々が様々な知識を学ぶ施設。好きなステータスを強化できる。"
 	}, {
@@ -87,6 +93,7 @@ var M_BUILDING_LIST = [
 		security: 100,
 		income: 100,
 		matchJob: "JB020",
+		efficacy: {money: 100, para: 10},
 		effect: "有料で任意のパラメータを10アップできる。",
 		memo: "人々が深い知識を学ぶ施設。好きなステータスを強化できる。"
 	}, {
@@ -97,6 +104,7 @@ var M_BUILDING_LIST = [
 		security: 20,
 		income: 20,
 		matchJob: "JB040",
+		efficacy: {money: 50, hp: 10},
 		effect: "有料で体力を10回復できる。",
 		memo: "人々を癒す施設。娯楽施設も兼ね備えている。宿泊できる。"
 	}, {
@@ -107,6 +115,7 @@ var M_BUILDING_LIST = [
 		security: 50,
 		income: 50,
 		matchJob: "JB040",
+		efficacy: {money: 100, hp: 20},
 		effect: "有料で体力を20回復できる。",
 		memo: "人々を楽しませる施設が集まる土地。宿泊できる。"
 	}, {
@@ -117,6 +126,7 @@ var M_BUILDING_LIST = [
 		security: 80,
 		income: 80,
 		matchJob: "JR011",
+		efficacy: {peo: 2, sec: 2},
 		effect: "周辺地域の人口+2 & 治安+2",
 		memo: "城と街がある土地。"
 	}, {
@@ -127,6 +137,7 @@ var M_BUILDING_LIST = [
 		security: 10,
 		income: 10,
 		matchJob: "JR022",
+		efficacy: {money: 200, hp: 100},
 		effect: "有料で体力を全回復できる。",
 		memo: "病を治癒する施設。"
 	}, {
@@ -138,6 +149,7 @@ var M_BUILDING_LIST = [
 		income: 50,
 		matchJob: "JR032",
 		effect: "有料で別の駅へ移動できる。",
+		efficacy: {money: 200},
 		memo: "人や物資を運ぶ施設。駅がある土地に移動できる。"
 	}, {
 		buildId: "BL014",
@@ -157,6 +169,7 @@ var M_BUILDING_LIST = [
 		security: 5,
 		income: "5000～-100",
 		matchJob: "JR033",
+		efficacy: {sec: -5},
 		effect: "周辺地域の治安-5。",
 		memo: "一攫千金の夢をお金で買う施設。周辺の土地の治安が下がる。"
 	}, {
@@ -167,6 +180,7 @@ var M_BUILDING_LIST = [
 		security: 50,
 		income: 50,
 		matchJob: "JR021",
+		efficacy: {peo: -5},
 		effect: "周辺地域の人口-5。",
 		memo: "ゴミを焼却する施設。臭いがするので周辺の土地の人口が減る。"
 	}
