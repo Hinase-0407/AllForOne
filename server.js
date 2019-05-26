@@ -125,7 +125,9 @@ wss.on('connection', function(connection) {
 		removeConnection(connection);
 	});
 });
-
+// ----------------------------------------------------------------------
+// イベント処理.
+// ----------------------------------------------------------------------
 /**
  * ゲーム参加.
  * @param {*} con 
@@ -137,7 +139,7 @@ function addGame(con, data) {
 	if (!playerId) playerId = Util.generateUuid();
 	console.log(playerId);
 	console.log(data.playerName);
-	var player = getObjByList(PLAYER_LIST, "playerId", playerId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", playerId);
 	if (!player) {
 		var player = {
 			playerId: playerId,
@@ -173,15 +175,15 @@ function turnProgress() {
 	for (var i = 0; i < PLAYER_LIST.length; i++) {
 		var player = PLAYER_LIST[i];
 		// 給与
-		var jobMaster = getObjByList(M_JOB_LIST, "rankId", player.job);
+		var jobMaster = getObjectByList(M_JOB_LIST, "rankId", player.job);
 		// 物件収入
-		income(player, jobMaster.money);
+		fluctuationParamByInteger(player.money, jobMaster.money, "money");
 
 		// アイテム取得
-		var jobItemList = getJobItemList(jobMaster.jobId);
+		var jobItemList = getObjectsByList(M_ITEM_LIST, "classId", jobMaster.classId);
 
 		// 体力回復処理
-		healHp(player, 2);
+		fluctuationParamByInteger(player.params.hp, 2, "hp");
 	}
 	// ターン数増加
 	gameInfo.turn ++;
@@ -193,12 +195,12 @@ function turnProgress() {
 function moveArea(data) {
 	console.log("move area.");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 移動処理
-	var mapObject = getObjByList(M_AREA_LIST, "areaId", data.areaId);
+	var mapObject = getObjectByList(M_AREA_LIST, "areaId", data.areaId);
 	player.map = mapObject.areaId;
-	player.params.hp -= 1;
+	fluctuationParamByInteger(player.params.hp, -1, "hp");
 }
 /**
  * 転職.
@@ -207,10 +209,10 @@ function moveArea(data) {
 function changeJob(data) {
 	console.log("change Job.");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 転職処理
-	var jobObject = getObjByList(M_JOB_LIST, "rankId", data.rankId);
+	var jobObject = getObjectByList(M_JOB_LIST, "rankId", data.rankId);
 	player.job = jobObject.rankId;
 }
 /**
@@ -220,22 +222,17 @@ function changeJob(data) {
 function buyItem(data) {
 	console.log("buyItem");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
+	var item = getObjectByList(M_ITEM_LIST, "itemId", data.itemId);
+	var area = getObjectByList(M_AREA_LIST, "areaId", player.map);
 
 	// 支払い処理
-	var itemMaster = getObjByList(M_ITEM_LIST, "itemId", data.itemId);
-	payment(player, itemMaster.price * data.count);
+	var areaBonus = (player.map === area.playerId) ? 2 : 1;
+	var price = (item.price / areaBonus) * data.count;
+	fluctuationParamByInteger(player.money, price, "money");
 
 	// 所持数変更処理
-	var isExist = false;
-	for (var i = 0; i < player.itemList.length; i++) {
-		var item = player.itemList[i];
-		if (item.itemId === data.itemId) {
-			item.count += data.count;
-			isExist = true;
-			break;
-		}
-	}
+	var isExist = fluctuationItem(player.itemList, data.itemId, data.count);
 	// 持っていないアイテムの場合、新規追加
 	if (!isExist) {
 		var item = {
@@ -246,26 +243,38 @@ function buyItem(data) {
 	}
 }
 /**
+ * アイテム売却.
+ * @param {*} data 
+ */
+function sellItem(data) {
+	console.log("sellItem");
+	console.log(data);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
+	var item = getObjectByList(M_ITEM_LIST, "itemId", data.itemId);
+	var area = getObjectByList(M_AREA_LIST, "areaId", player.map);
+
+	// 収入処理
+	var areaBonus = (player.map === area.playerId) ? 2 : 1;
+	var price = ((item.price / 2) * areaBonus) * data.count;
+	fluctuationParamByInteger(player.money, price, "money");
+
+	// 所持数変更処理
+	fluctuationItem(player.itemList, data.itemId, data.count);
+}
+/**
  * アイテム使用.
  * @param {*} data 
  */
 function useItem(data) {
 	console.log("useItem");
 	console.log(data);
-	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
 
 	// 所持数変更処理
-	var isExist = false;
-	for (var i = 0; i < player.itemList.length; i++) {
-		var item = player.itemList[i];
-		if (item.itemId === data.itemId) {
-			item.count -= 1;
-			isExist = true;
-			break;
-		}
-	}
+	var isExist = fluctuationItem(player.itemList, data.itemId, -1);
+	// アイテムの効果発動
 	if (isExist) {
-		var itemMaster = getObjByList(M_ITEM_LIST, "itemId", data.itemId);
+		var itemMaster = getObjectByList(M_ITEM_LIST, "itemId", data.itemId);
 		var efficacyKeys = Object.keys(itemMaster.efficacy);
 		for (var i = 0; i < efficacyKeys.length; i++) {
 			var key = efficacyKeys[i];
@@ -275,18 +284,21 @@ function useItem(data) {
 }
 function buyBuild(data) {
 	console.log("buyBuild.");
-	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
-	var area = getObjByList(M_AREA_LIST, "areaId", player.map);
-	var build = getObjByList(M_BUILDING_LIST, "buildId", data.buildId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
+	var area = getObjectByList(M_AREA_LIST, "areaId", player.map);
+	var build = getObjectByList(M_BUILDING_LIST, "buildId", data.buildId);
+
 	// 購入・買収チェック
 	var buyCost = (!area.playerId || area.playerId === data.playerId) ? 1 : 3;
 	// 金額チェック
 	var canBuy = build.cost * buyCost <= player.money;
 	// 建設条件チェック
 	var canBuild = (build.population <= area.peo) && (build.security <= area.sec);
+
 	// 全てのチェックがOKだったら購入
 	if (canBuy && canBuild) {
-		payment(player.money, build.cost * buyCost);
+		fluctuationParamByInteger(player.money, (build.cost * buyCost), "money");
+//		payment(player.money, build.cost * buyCost);
 		area.playerId = data.playerId;
 		area.buildId = data.buildId;
 	} else {
@@ -296,50 +308,54 @@ function buyBuild(data) {
 }
 function restHotel(data) {
 	console.log("restHotel.");
-	var player = getObjByList(PLAYER_LIST, "playerId", data.playerId);
-	var area = getObjByList(M_AREA_LIST, "areaId", player.map);
-	var build = getObjByList(M_BUILDING_LIST, "buildId", data.buildId);
+	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
+	var area = getObjectByList(M_AREA_LIST, "areaId", player.map);
+	var build = getObjectByList(M_BUILDING_LIST, "buildId", data.buildId);
 	// 
+	fluctuationParamByInteger(player.params.hp, 20, "hp");
 }
+// ----------------------------------------------------------------------
+// 共通処理.
+// ----------------------------------------------------------------------
 /**
- * リスト内のオブジェクト取得.
+ * リスト内のオブジェクトを取得.
  * @param {Array} list 検索対象リスト 
- * @param {String} keyName 検索するリスト情報の名称
+ * @param {String} className 検索対象リストのクラス名
  * @param {String} key 検索する値
+ * @returns {Object} 検索結果
  */
-function getObjByList(list, keyName, key) {
+function getObjectByList(list, className, key) {
 	for (var i = 0; i < list.length; i++) {
 		var tmp = list[i];
-		if (tmp[keyName] === key) {
+		if (tmp[className] === key) {
 			return tmp;
 		}
 	}
 	return null;
 }
 /**
- * 支払処理.
- * @param {Object} player 支払いをするプレイヤー
- * @param {Number} price 支払の数値
+ * リスト内のオブジェクトをリストで取得.
+ * @param {Array} list 検索対象リスト 
+ * @param {String} className 検索対象リストのクラス名
+ * @param {String} key 検索する値
+ * @returns {Array} 検索結果
  */
-function payment(player, price) {
-	player.money -= price;
-	console.log("payment: " + String(price) + ", result money:" + String(player.money));
-}
-/**
- * 収入処理.
- * @param {Object} player 収益を得るプレイヤー
- * @param {Number} price 収益の数値
- */
-function income(player, price) {
-	player.money += price;
-	console.log("income: " + String(price) + ", result money:" + String(player.money));
+function getObjectsByList(list, className, key) {
+	var resultList = [];
+	for (var i = 0; i < list.length; i++) {
+		var tmp = list[i];
+		if (tmp[className] === key) {
+			resultList.push(tmp);
+		}
+	}
+	return resultList;
 }
 /**
  * 対象のリストに登録されたクラスの数値を合計して返す.
  * @param {Array} list 対象のリスト
  * @param {String} sumClass 合計対象のリストの名称
  */
-function sumListClass(list, sumClass) {
+function sumListClassValue(list, sumClass) {
 	var sumVal = 0;
 	for (var i = 0, len = list.length; i < len; i++) {
 		var tmp = list[i];
@@ -348,13 +364,49 @@ function sumListClass(list, sumClass) {
 	return sumVal;
 }
 /**
- * 体力回復処理.
- * @param {Object} player 体力が回復するプレイヤー
- * @param {Number} rest HPが回復する数値
+ * 対象の数値を増減させる.
+ * @param {Number} target 数値を増減させる対象
+ * @param {Number} int 増減値
+ * @param {String} type 対象の内容（param, item, level, build, hp）
  */
-function healHp(player, rest) {
-	var maxHp = 100;
-	player.params.hp = (player.params.hp + rest < maxHp) ? player.params.hp + rest : maxHp;
+function fluctuationParamByInteger(target, int, type) {
+	// 基準値設定（多用される type === "param" を使用）
+	var max = NaN;
+	var min = NaN;
+	if (type === "param") max = 999, min = 0;
+	else if (type === "item") max = 10, min = 0;
+	else if (tyep === "level") max = 5, min = 1;
+	else if (type === "build") max = 99999;
+	else if (type === "hp") max = 100;
+
+	// 増減処理
+	var result = Number(target) + Number(int);
+	if (max < result) result = max;
+	else if (result < min) result = min;
+
+	console.log("type: " + type + ", before: " + Number(target) + ", after: " + result + ", integer: " + Number(int));
+	target = result;
+}
+/**
+ * 所持アイテム増減処理.
+ * @param {Array} itemList 対象プレイヤーのアイテムリスト
+ * @param {String} itemId 増減対象のアイテムID
+ * @param {Number} int 増減個数 
+ * @returns {Boolean} 増減処理の実施可否
+ */
+function fluctuationItem (itemList, itemId, int) {
+	for (var i = 0; i < itemList.length; i++) {
+		var item = itemList[i];
+		if (item.itemId === itemId) {
+			if (item.count < 10) {
+				fluctuationParamByInteger(item.count, int, "item");
+				if (item.count === 0) itemList.splice(i, 1);
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
 }
 /**
  * 2人のプレイヤーが同じチームかどうか真偽値を返す.
