@@ -167,6 +167,8 @@ function addGame(con, data) {
 }
 /**
  * ターン経過.
+ * 各プレイヤ : money +物件収入 & hp +2
+ * ターン数: +1
  */
 function turnProgress() {
 	console.log("next turn.");
@@ -174,14 +176,11 @@ function turnProgress() {
 	// 各プレイヤーに収益処理・体力回復
 	for (var i = 0; i < PLAYER_LIST.length; i++) {
 		var player = PLAYER_LIST[i];
-		// 給与
-		var jobMaster = getObjectByList(M_JOB_LIST, "rankId", player.job);
 		// 物件収入
-		fluctuationParamByInteger(player.money, jobMaster.money, "money");
-
-		// アイテム取得
-		var jobItemList = getObjectsByList(M_ITEM_LIST, "classId", jobMaster.classId);
-
+		var incomeByBuilds = sumIncomeByBuilds(player);
+		fluctuationParamByInteger(player.money, incomeByBuilds, "money");
+		// 給与
+		incomeByJob(player);
 		// 体力回復処理
 		fluctuationParamByInteger(player.params.hp, 2, "hp");
 	}
@@ -233,20 +232,12 @@ function buyItem(data) {
 
 	// 所持数変更処理
 	var isExist = fluctuationItem(player.itemList, data.itemId, data.count);
-	// 持っていないアイテムの場合、新規追加
-	if (!isExist) {
-		var item = {
-			itemId: data.itemId,
-			count: data.count
-		};
-		player.itemList.push(item);
-	}
 }
 /**
  * アイテム売却.
  * @param {*} data 
  */
-function sellItem(data) {
+function saleItem(data) {
 	console.log("sellItem");
 	console.log(data);
 	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
@@ -282,6 +273,10 @@ function useItem(data) {
 		}
 	}
 }
+/**
+ * 物件購入.
+ * @param {*} data 
+ */
 function buyBuild(data) {
 	console.log("buyBuild.");
 	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
@@ -293,12 +288,11 @@ function buyBuild(data) {
 	// 金額チェック
 	var canBuy = build.cost * buyCost <= player.money;
 	// 建設条件チェック
-	var canBuild = (build.population <= area.peo) && (build.security <= area.sec);
+	var canBuild = (build.population <= area.population) && (build.security <= area.security);
 
 	// 全てのチェックがOKだったら購入
 	if (canBuy && canBuild) {
 		fluctuationParamByInteger(player.money, (build.cost * buyCost), "money");
-//		payment(player.money, build.cost * buyCost);
 		area.playerId = data.playerId;
 		area.buildId = data.buildId;
 	} else {
@@ -306,13 +300,55 @@ function buyBuild(data) {
 		if (!canBuild) console.log("施設設置条件を満たしていません。"); 
 	}
 }
+/**
+ * 宿泊施設利用処理.
+ * @param {*} data 
+ */
 function restHotel(data) {
 	console.log("restHotel.");
 	var player = getObjectByList(PLAYER_LIST, "playerId", data.playerId);
 	var area = getObjectByList(M_AREA_LIST, "areaId", player.map);
 	var build = getObjectByList(M_BUILDING_LIST, "buildId", data.buildId);
-	// 
+	// 回復処理
 	fluctuationParamByInteger(player.params.hp, 20, "hp");
+}
+/**
+ * 物件収入合計値計算.
+ * @param {Object} player 対象のプレイヤーオブジェクト
+ * @returns 収入合計数値
+ */
+function sumIncomeByBuilds(player) {
+	var haveArea = getObjectsByList(M_AREA_LIST, "playerId", player.playerId);
+
+	// 所有する物件の収入を合計
+	var income = 0;
+	for (var i in haveArea) {
+		var area = haveArea[i];
+		income += (area.buildId * area.level);
+	}
+	return income;
+}
+/**
+ * 給与（お金＋アイテム取得）.
+ * @param {Object} player 対象のプレイヤーオブジェクト 
+ */
+function incomeByJob(player) {
+	var jobMaster = getObjectByList(M_JOB_LIST, "rankId", player.job);
+
+	// 所持金加算
+	fluctuationParamByInteger(player.money, jobMaster.money, "money");
+
+	// アイテム取得
+	var jobItemList = getObjectsByList(M_ITEM_LIST, "classId", jobMaster.classId);
+	var randomNum1 = Math.floor(Math.random() * jobItemList.length);
+	fluctuationItem(player.itemList, jobItemList[randomNum1], 1);
+	if (player.classId === "JB040") {
+		var randomNum2 = NaN;
+		do {
+			randomNum2 = Math.floor(Math.random() * jobItemList.length);
+		} while (randomNum1 === randomNum2);
+		fluctuationItem(player.itemList, jobItemList[randomNum2], 1);		
+	}
 }
 // ----------------------------------------------------------------------
 // 共通処理.
@@ -395,16 +431,35 @@ function fluctuationParamByInteger(target, int, type) {
  * @returns {Boolean} 増減処理の実施可否
  */
 function fluctuationItem (itemList, itemId, int) {
-	for (var i = 0; i < itemList.length; i++) {
-		var item = itemList[i];
-		if (item.itemId === itemId) {
-			if (item.count < 10) {
-				fluctuationParamByInteger(item.count, int, "item");
-				if (item.count === 0) itemList.splice(i, 1);
-				return true;
+	if (int === 0) return false;
+	var targetItem = getObjectByList(itemList, "itemId", itemId);
+
+	// すでに所有済みのアイテムを増減させる
+	if (targetItem) {
+		// 増加処理の場合、所持数を上回る数の増加は受け付けない
+		if (0 < int && 10 < targetItem.count + int) return false;
+		// 減少処理の場合、所持数未満の減少を受け付けない
+		else if (int < 0 && targetItem.count + int < 0) return false;
+
+		targetItem.count += int;
+
+		// アイテム数が0になった場合、アイテムリストから対象を削除
+		if (item.count === 0) {
+			for (var i in itemList) {
+				if (itemList[i].itemId === targetItem.itemId) itemList.splice(i, 1);
 			}
-			break;
 		}
+		return true;
+	}
+
+	// 持っていないアイテムの増加処理の場合、新規追加
+	else if (!targetItem && 0 < int) {
+		var item = {
+			itemId: itemId,
+			count: int
+		};
+		itemList.push(item);
+		return true;		
 	}
 	return false;
 }
