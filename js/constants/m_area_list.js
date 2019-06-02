@@ -620,3 +620,4 @@ var m_area_list = [
     buildId: 'BL000'
   }
 ];
+module.exports = m_area_list;

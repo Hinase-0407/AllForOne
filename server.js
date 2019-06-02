@@ -333,9 +333,12 @@ function sumIncomeByBuilds(player) {
  * @param {Object} player 対象のプレイヤーオブジェクト 
  */
 function incomeByJob(player) {
+	console.log(player.job);
+	console.log(M_JOB_LIST)
 	var jobMaster = getObjectByList(M_JOB_LIST, "rankId", player.job);
 
 	// 所持金加算
+	console.log(jobMaster);
 	fluctuationParamByInteger(player.money, jobMaster.money, "money");
 
 	// アイテム取得
@@ -411,7 +414,7 @@ function fluctuationParamByInteger(target, int, type) {
 	var min = NaN;
 	if (type === "param") max = 999, min = 0;
 	else if (type === "item") max = 10, min = 0;
-	else if (tyep === "level") max = 5, min = 1;
+	else if (type === "level") max = 5, min = 1;
 	else if (type === "build") max = 99999;
 	else if (type === "hp") max = 100;
 

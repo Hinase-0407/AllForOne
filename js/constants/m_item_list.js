@@ -170,3 +170,4 @@ var m_item_list = [
     memoItem: 'ショップの買取価格が倍になる'
   }
 ];
+module.exports = m_item_list;

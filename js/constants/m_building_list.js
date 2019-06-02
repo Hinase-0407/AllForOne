@@ -238,3 +238,4 @@ var m_building_list = [
     memoBuild: 'ゴミを焼却する施設。臭いがするので周辺の土地の人口が減る。'
   }
 ];
+module.exports = m_building_list;
