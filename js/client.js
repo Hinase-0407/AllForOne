@@ -5,7 +5,7 @@ $(function() {
 	function Client() {
 		// 通信用オブジェクト
 		var host = "153.126.204.61";
-		//var host = "localhost";
+		// var host = "localhost";
 		this.ws = new WebSocket('ws://' + host + ':8005/');
 		// イベント設定
 		this.setEvent();

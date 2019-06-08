@@ -178,11 +178,11 @@ function turnProgress() {
 		var player = PLAYER_LIST[i];
 		// 物件収入
 		var incomeByBuilds = sumIncomeByBuilds(player);
-		fluctuationParamByInteger(player.money, incomeByBuilds, "money");
+		player.money = fluctuationParamByInteger(player.money, incomeByBuilds, "money");
 		// 給与
 		incomeByJob(player);
 		// 体力回復処理
-		fluctuationParamByInteger(player.params.hp, 2, "hp");
+		player.params.hp = fluctuationParamByInteger(player.params.hp, 2, "hp");
 	}
 	// ターン数増加
 	gameInfo.turn ++;
@@ -199,7 +199,7 @@ function moveArea(data) {
 	// 移動処理
 	var mapObject = getObjectByList(M_AREA_LIST, "areaId", data.areaId);
 	player.map = mapObject.areaId;
-	fluctuationParamByInteger(player.params.hp, -1, "hp");
+	player.params.hp = fluctuationParamByInteger(player.params.hp, -1, "hp");
 }
 /**
  * 転職.
@@ -228,7 +228,7 @@ function buyItem(data) {
 	// 支払い処理
 	var areaBonus = (player.map === area.playerId) ? 2 : 1;
 	var price = (item.price / areaBonus) * data.count;
-	fluctuationParamByInteger(player.money, price, "money");
+	player.money = fluctuationParamByInteger(player.money, price, "money");
 
 	// 所持数変更処理
 	var isExist = fluctuationItem(player.itemList, data.itemId, data.count);
@@ -247,7 +247,7 @@ function saleItem(data) {
 	// 収入処理
 	var areaBonus = (player.map === area.playerId) ? 2 : 1;
 	var price = ((item.price / 2) * areaBonus) * data.count;
-	fluctuationParamByInteger(player.money, price, "money");
+	player.money = fluctuationParamByInteger(player.money, price, "money");
 
 	// 所持数変更処理
 	fluctuationItem(player.itemList, data.itemId, data.count);
@@ -292,7 +292,7 @@ function buyBuild(data) {
 
 	// 全てのチェックがOKだったら購入
 	if (canBuy && canBuild) {
-		fluctuationParamByInteger(player.money, (build.cost * buyCost), "money");
+		player.money = fluctuationParamByInteger(player.money, (build.cost * buyCost), "money");
 		area.playerId = data.playerId;
 		area.buildId = data.buildId;
 	} else {
@@ -310,7 +310,7 @@ function restHotel(data) {
 	var area = getObjectByList(M_AREA_LIST, "areaId", player.map);
 	var build = getObjectByList(M_BUILDING_LIST, "buildId", data.buildId);
 	// 回復処理
-	fluctuationParamByInteger(player.params.hp, 20, "hp");
+	player.params.hp = fluctuationParamByInteger(player.params.hp, 20, "hp");
 }
 /**
  * 物件収入合計値計算.
@@ -334,23 +334,24 @@ function sumIncomeByBuilds(player) {
  */
 function incomeByJob(player) {
 	console.log(player.job);
-	console.log(M_JOB_LIST)
-	var jobMaster = getObjectByList(M_JOB_LIST, "rankId", player.job);
+	var jobInfo = getObjectByList(M_JOB_LIST, "rankId", player.job);
 
 	// 所持金加算
-	console.log(jobMaster);
-	fluctuationParamByInteger(player.money, jobMaster.money, "money");
+	console.log(jobInfo);
+	player.money = fluctuationParamByInteger(player.money, jobInfo.money, "money");
 
 	// アイテム取得
-	var jobItemList = getObjectsByList(M_ITEM_LIST, "classId", jobMaster.classId);
-	var randomNum1 = Math.floor(Math.random() * jobItemList.length);
-	fluctuationItem(player.itemList, jobItemList[randomNum1], 1);
-	if (player.classId === "JB040") {
-		var randomNum2 = NaN;
-		do {
-			randomNum2 = Math.floor(Math.random() * jobItemList.length);
-		} while (randomNum1 === randomNum2);
-		fluctuationItem(player.itemList, jobItemList[randomNum2], 1);		
+	var jobItemList = getObjectsByList(M_ITEM_LIST, "classId", jobInfo.classId);
+	if (0 < jobItemList.length) {
+		var randomNum1 = Math.floor(Math.random() * jobItemList.length);
+		fluctuationItem(player.itemList, jobItemList[randomNum1].itemId, 1);
+		if (player.classId === "JB040") {
+			var randomNum2 = NaN;
+			do {
+				randomNum2 = Math.floor(Math.random() * jobItemList.length);
+			} while (randomNum1 === randomNum2);
+			fluctuationItem(player.itemList, jobItemList[randomNum2].itemId, 1);		
+		}
 	}
 }
 // ----------------------------------------------------------------------
@@ -390,23 +391,11 @@ function getObjectsByList(list, className, key) {
 	return resultList;
 }
 /**
- * 対象のリストに登録されたクラスの数値を合計して返す.
- * @param {Array} list 対象のリスト
- * @param {String} sumClass 合計対象のリストの名称
- */
-function sumListClassValue(list, sumClass) {
-	var sumVal = 0;
-	for (var i = 0, len = list.length; i < len; i++) {
-		var tmp = list[i];
-		sumVal += Number(tmp[sumClass]);
-	}
-	return sumVal;
-}
-/**
  * 対象の数値を増減させる.
  * @param {Number} target 数値を増減させる対象
  * @param {Number} int 増減値
  * @param {String} type 対象の内容（param, item, level, build, hp）
+ * @return {Number} target + int の結果
  */
 function fluctuationParamByInteger(target, int, type) {
 	// 基準値設定（多用される type === "param" を使用）
@@ -424,7 +413,7 @@ function fluctuationParamByInteger(target, int, type) {
 	else if (result < min) result = min;
 
 	console.log("type: " + type + ", before: " + Number(target) + ", after: " + result + ", integer: " + Number(int));
-	target = result;
+	return result;
 }
 /**
  * 所持アイテム増減処理.
@@ -439,6 +428,7 @@ function fluctuationItem (itemList, itemId, int) {
 
 	// すでに所有済みのアイテムを増減させる
 	if (targetItem) {
+		console.log("change itemCount By player's itemList.");
 		// 増加処理の場合、所持数を上回る数の増加は受け付けない
 		if (0 < int && 10 < targetItem.count + int) return false;
 		// 減少処理の場合、所持数未満の減少を受け付けない
@@ -447,7 +437,8 @@ function fluctuationItem (itemList, itemId, int) {
 		targetItem.count += int;
 
 		// アイテム数が0になった場合、アイテムリストから対象を削除
-		if (item.count === 0) {
+		if (targetItem.count === 0) {
+			console.log("delete item By player's itemList.");
 			for (var i in itemList) {
 				if (itemList[i].itemId === targetItem.itemId) itemList.splice(i, 1);
 			}
@@ -457,6 +448,8 @@ function fluctuationItem (itemList, itemId, int) {
 
 	// 持っていないアイテムの増加処理の場合、新規追加
 	else if (!targetItem && 0 < int) {
+		console.log("add item By player's itemList.");
+		console.log(itemId);
 		var item = {
 			itemId: itemId,
 			count: int
@@ -474,16 +467,24 @@ function fluctuationItem (itemList, itemId, int) {
 function isSameTeam(player1, player2) {
 	return true;
 }
+/**
+ * 対象のリストに登録されたクラスの数値を合計して返す.
+ * @param {Array} list 対象のリスト
+ * @param {String} sumClass 合計対象のリストの名称
+ */
+function sumListClassValue(list, sumClass) {
+	var sumVal = 0;
+	for (var i = 0, len = list.length; i < len; i++) {
+		var tmp = list[i];
+		sumVal += Number(tmp[sumClass]);
+	}
+	return sumVal;
+}
 /*
-ターン経過時にターン数増加・体力回復
 土地購入・所有者表示
 土地収益処理
 増資処理
 施設レベルアップ
-
-ゲームクラス作成
-ゲームクラスの登録
-ゲームクラスの表示
 */
 
 server.listen(8005);

@@ -79,7 +79,8 @@ table td {
 	border-right: 1px solid #5F5F5F;
 	border-bottom: 1px solid #5F5F5F;
 	padding: 4px;
-	white-space: pre-wrap;
+	white-space: normal;
+	word-break: break-all;
 }
 table th:first-child,
 table td:first-child {
