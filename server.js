@@ -151,10 +151,10 @@ function addGame(con, data) {
 			itemList: [],
 			params: {
 				hp: 100,
-				power: 0,
-				intellect: 0,
-				sense: 0,
-				charm: 0,
+				power: 3,
+				intellect: 3,
+				sense: 3,
+				charm: 3,
 				moral: 0
 			}
 		};
@@ -318,12 +318,11 @@ function restHotel(data) {
  * @returns 収入合計数値
  */
 function sumIncomeByBuilds(player) {
-	var haveArea = getObjectsByList(M_AREA_LIST, "playerId", player.playerId);
+	var haveAreas = getObjectsByList(M_AREA_LIST, "playerId", player.playerId);
 
 	// 所有する物件の収入を合計
 	var income = 0;
-	for (var i in haveArea) {
-		var area = haveArea[i];
+	for (var area in haveAreas) {
 		income += (area.buildId * area.level);
 	}
 	return income;

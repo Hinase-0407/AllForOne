@@ -32,6 +32,10 @@ $(function() {
 	// ----------------------------------------------------------------------
 	Client.prototype.setClientEvent = function() {
 		var self = this;
+		// アコーディオン コマンドメニューの閉開
+		$('h2.acodion').click(function() {
+			$(' +div.info_area', this).toggle();
+		});
 		// ゲーム参加.
 		$('#userName').val(localStorage.getItem("playerName") || "");
 		$('#addGame').click(function() {
@@ -44,6 +48,8 @@ $(function() {
 		// ターン経過
 		$('#turnProgress').on("click", function() {
 			var data = {};
+			var playerId = localStorage.getItem("playerId");
+			if (!playerId) return false;
 			self.send("turnProgress", data);
 		});
 		// 移動
@@ -91,15 +97,26 @@ $(function() {
 			});
 		});
 		// 土地購入（施設建設）
-		$('#buyBuild').click(function() {
-			console.log("buyBuild click");
-			var build = getBuildInfo();
-			// 持ち主がいなければ、通常購入
-			// 持ち主がいれば、3倍価格で買収
+		$('#buildingList').on("click", "tr", function() {
+			console.log("buildingList click");
+			var playerId = localStorage.getItem("playerId");
+			if (!playerId) return false;
+			self.send("buyBuild", {
+				playerId: playerId,
+				buildId: $(this).data("id")
+			});
 		});
 		// 施設利用
 		$('#useBuild').click(function() {
 			console.log("useBuild click");
+		});
+		// 土地売却
+		$('#useBuild').click(function() {
+			console.log("saleBuild click");
+		});
+		// アイテム売却
+		$('#useBuild').click(function() {
+			console.log("saleBuild click");
 		});
 	};
 	// ----------------------------------------------------------------------

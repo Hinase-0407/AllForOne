@@ -15,18 +15,21 @@
 			<input id="userName" type="text" />
 			<input id="addGame" type="button" class="button_base" value="参加" />
 		</div>
+
 		<h2>ターン制御</h2>
 		<div class="info_area">
 			<span>ターン数：</span><span id="turn"></span><span class="space">　　　</span>
 			<input id="turnProgress" type="button" class="button_base" value="ターン経過" />
 		</div>
-		<h2>アイテム使用</h2>
+
+		<h2 class="acodion">アイテム使用</h2>
 		<div class="info_area">
 			<span>アイテムID</span>
 			<input id="itemId" type="text" />
 			<input id="useItem" type="button" class="button_base" value="使用" />
 		</div>
-		<h2>建築</h2>
+
+		<h2 class="acodion">建築</h2>
 		<div class="info_area">
 			<span>エリアID</span>
 			<input id="areaId" type="text" />
@@ -34,18 +37,29 @@
 			<input id="buildId" type="text" />
 			<input id="buyBuild" type="button" class="button_base" value="土地購入・建築" />
 		</div>
+
 		<h2>プレイヤー一覧</h2>
 		<div><table id="playerList"></table></div>
-		<h2>職業一覧</h2>
-		<div><table id="jobList"></table></div>
-		<h2>土地一覧</h2>
-		<div><table id="areaList"></table></div>
-		<h2 class="buildEvent" id="build">建築</h2>
-		<div><table id="buildingList"></table></div>
-		<h2 class="buildEvent" id="buy">アイテム購入</h2>
-		<div><table id="itemList"></table></div>
-		<h2 class="buildEvent" id="rest">宿泊</h2>
-		<h2 class="buildEvent" id="investment">投資</h2>
+
+		<h2 class="acodion">職業一覧</h2>
+		<div class="info_area"><table id="jobList"></table></div>
+
+		<h2 class="acodion">土地一覧</h2>
+		<div class="info_area"><table id="areaList"></table></div>
+
+		<h2 class="acodion buildEvent" id="build">建築</h2>
+		<div class="info_area"><table id="buildingList"></table></div>
+
+		<h2 class="acodion buildEvent" id="buy">アイテム購入</h2>
+		<div class="info_area"><table id="itemList"></table></div>
+
+		<h2 class="acodion buildEvent" id="rest">宿泊</h2>
+		<h2 class="acodion buildEvent" id="investment">投資</h2>
+		<div>
+			<input name="toshi" type="radio" value="population" />人口　
+			<input name="toshi" type="radio" value="security" />治安　
+			<input id="toshi" type="button" class="button_base" value="投資実行" />
+		</div>
 	</div>
 </body>
 </html>
